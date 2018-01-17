@@ -106,9 +106,7 @@ public class RpiServlet extends HttpServlet {
 		String command = path.substring(SERVLET_PATH.length());
 		RpiLocalRequestProcessor processor = new RpiLocalRequestProcessor();
 		
-		String answer = processor.process(command, query);
-		
-		response.getWriter().println(answer);
+		processor.process(response.getOutputStream(), command, query);
 	}
 
 	/**

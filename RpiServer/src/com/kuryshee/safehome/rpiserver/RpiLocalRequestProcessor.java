@@ -1,6 +1,10 @@
 package com.kuryshee.safehome.rpiserver;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.servlet.ServletOutputStream;
+
 import com.kuryshee.safehome.requestprocessorinterface.RequestProcessor;
 
 /**
@@ -15,13 +19,20 @@ public class RpiLocalRequestProcessor implements RequestProcessor{
 	 * This method is a part of the interface implementation.
 	 * It chooses actions for incoming requests.
 	 */
-	public String process(String command, String query) {
-		if (command.equals(RpiServlet.REQ_CHECKTASK)){
-			return checktask();
-		}	
-		else{
-			return RpiServlet.NO_ANSWER;
-		}	
+	@Override
+	public void process(ServletOutputStream output, String... parameters) {
+		String command = parameters[0];
+		try {
+			if (command.equals(RpiServlet.REQ_CHECKTASK)){
+				output.println(checktask());
+			}	
+			else{
+				output.println(RpiServlet.NO_ANSWER);
+			}
+		}
+		catch(Exception e) {
+			log.severe(e.getMessage());
+		}
 	}
 	
 	/**
