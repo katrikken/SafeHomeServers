@@ -45,6 +45,30 @@ end delete_user_credentials;
 commit;
 
 
+-- Returns true if a user exists with the given password.
+create function validate_user_credentials(
+    u_login user_credentials.user_login%type, -- user login
+    u_password user_credentials.user_password%type -- user password
+  ) return number  -- 1 if the data are valid, 0 otherwise
+as
+  u_count number(2,0);
+  retval number(1,0);
+begin
+  select count(*) into u_count
+	from user_credentials uc
+	 where uc.user_login = u_login and uc.user_password = u_password;
+  
+  if u_count = 1
+    then
+      retval := 1;
+    else
+      retval := 0;
+  end if; 
+  
+  return retval;
+end;
+/
+
 -- Table of users' authorization tokens
 create table user_tokens(
   user_login character varying (15) not null,
@@ -87,3 +111,5 @@ begin
       );
 end add_user_token;
 /
+
+commit;
