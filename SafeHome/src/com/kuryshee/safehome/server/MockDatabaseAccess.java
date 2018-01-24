@@ -17,16 +17,56 @@ import com.kuryshee.safehome.database.DatabaseAccessInterface;
  */
 public class MockDatabaseAccess implements DatabaseAccessInterface{
 	
+	@Override
+	public void addUserCredentials(String login, String password) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void addUserToken(String login, String token) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void deleteUserCredentials(String login) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public String getUserByToken(String token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public boolean validateUserCredentials(String login, String password) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean validateUserToken(String login, String token) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	public static String DB_PATH = "Database\\";
 	
 	public static final String LIST = "list";
 
-	@Override
+
 	public Boolean connect(String url, Map<String, String> properties) {
 		return true;
 	}
 
-	@Override
+
 	public Boolean insert(String table, Map<String, String> values) {
 		String id = values.get(SafeHomeServer.RPI_PARAM);
 		String command = values.get(SafeHomeServer.COMMAND_PARAM);
@@ -72,12 +112,8 @@ public class MockDatabaseAccess implements DatabaseAccessInterface{
 		return false;
 	}
 	
-	@Override
-	public ResultSet select(String query) {
-		return null;
-	}
 
-	@Override
+
 	public Boolean close() {
 		return true;
 	}

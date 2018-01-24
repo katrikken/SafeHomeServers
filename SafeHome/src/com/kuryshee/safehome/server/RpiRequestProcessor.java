@@ -69,7 +69,7 @@ public class RpiRequestProcessor implements RequestProcessor{
 			values.put(SafeHomeServer.TIME_PARAM, time);
 			values.put(SafeHomeServer.COMMAND_PARAM, SafeHomeServer.REQ_RFIDSWITCH);
 			
-			DatabaseAccessInterface db = new MockDatabaseAccess();
+			MockDatabaseAccess db = new MockDatabaseAccess();
 			Boolean status = false;
 			status = db.connect(null, null);
 			status = db.insert("My table", values);
@@ -102,7 +102,7 @@ public class RpiRequestProcessor implements RequestProcessor{
 				values.put(SafeHomeServer.PHOTO_PARAM, SafeHomeServer.PHOTO_PATH + fileName);
 				values.put(SafeHomeServer.COMMAND_PARAM, SafeHomeServer.UPLOAD_PHOTO);
 				
-				DatabaseAccessInterface db = new MockDatabaseAccess();
+				MockDatabaseAccess db = new MockDatabaseAccess();
 				Boolean status = false;
 				status = db.connect(null, null);
 				status = db.insert("My table", values);
@@ -137,7 +137,7 @@ public class RpiRequestProcessor implements RequestProcessor{
 			}
 			values.put(SafeHomeServer.COMMAND_PARAM, command);
 			
-			DatabaseAccessInterface db = new MockDatabaseAccess();
+			MockDatabaseAccess db = new MockDatabaseAccess();
 			Boolean status = false;
 			status = db.connect(null, null);
 			status = db.insert("My table", values);

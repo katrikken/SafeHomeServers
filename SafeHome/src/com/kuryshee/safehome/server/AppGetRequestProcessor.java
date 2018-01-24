@@ -6,18 +6,29 @@ import java.util.logging.Level;
 
 import javax.servlet.ServletOutputStream;
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
+import com.kuryshee.safehome.database.DatabaseAccessInterface;
 import com.kuryshee.safehome.requestprocessorinterface.RequestProcessor;
 import com.sun.istack.internal.logging.Logger;
 
 
 public class AppGetRequestProcessor implements RequestProcessor{
 	
+	private DatabaseAccessInterface database = new MockDatabaseAccess();
+	
 	private String user;
 	
-	private boolean validateToken(String token) {
-		user = "rpi"; //todo 
+	/**
+	 * Gets the user from the database.
+	 * @param token
+	 * @return true, if the user is found, false otherwise.
+	 */
+	private boolean getUserByToken(String token) {
+		user = database.getUserByToken(token);
 		
-		return true;
+		if(user.length() > 0)
+			return true;
+		
+		return false;
 	}
 	
 	private void getDataFromDatabase(ServletOutputStream output, String action) throws IOException {
@@ -35,7 +46,7 @@ public class AppGetRequestProcessor implements RequestProcessor{
 					output.println(AppCommunicationConsts.PONG);
 				}
 				else if (action != null){
-					if(parameters[0] != null && validateToken(parameters[0])) {
+					if(parameters[0] != null && getUserByToken(parameters[0])) {
 						
 					}
 					else {

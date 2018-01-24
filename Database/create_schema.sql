@@ -112,4 +112,47 @@ begin
 end add_user_token;
 /
 
+-- Validates user token.
+create function validate_user_token(
+    u_login user_tokens.user_login%type, -- user login
+    u_token user_tokens.user_token%type -- user token
+  ) return number  -- 1 if the data are valid, 0 otherwise
+as
+  u_count number(2,0);
+  retval number(1,0);
+begin
+  select count(*) into u_count
+	from user_tokens ut
+	 where ut.user_login = u_login and ut.user_token = u_token;
+  
+  if u_count = 1
+    then
+      retval := 1;
+    else
+      retval := 0;
+  end if; 
+  
+  return retval;
+end;
+/
+
+-- Returns the user, which owns the token.
+create function get_user_by_token(
+    u_token user_tokens.user_token%type -- user token
+  ) return user_tokens.user_login%type  -- user login
+as
+  retval user_tokens.user_login%type;
+begin
+  select user_login into retval
+	from user_tokens ut
+	 where ut.user_token = u_token;
+  
+  return retval;
+  
+  exception
+    when no_data_found then
+      return '';
+end;
+/
+
 commit;
