@@ -1,5 +1,6 @@
 package com.kuryshee.safehome.server;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -69,12 +70,19 @@ public class RpiRequestProcessor implements RequestProcessor{
 			values.put(SafeHomeServer.TIME_PARAM, time);
 			values.put(SafeHomeServer.COMMAND_PARAM, SafeHomeServer.REQ_RFIDSWITCH);
 			
-			MockDatabaseAccess db = new MockDatabaseAccess();
-			Boolean status = false;
-			status = db.connect(null, null);
-			status = db.insert("My table", values);
-			if(status)
-				return SafeHomeServer.OK_ANSWER;
+			DatabaseAccessImpl db;
+			try {
+				db = new DatabaseAccessImpl();
+				Boolean status = false;
+				status = db.connect(null, null);
+				status = db.insert("My table", values);
+				if(status)
+					return SafeHomeServer.OK_ANSWER;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 		
 		return SafeHomeServer.ERROR_ANSWER;
@@ -102,17 +110,24 @@ public class RpiRequestProcessor implements RequestProcessor{
 				values.put(SafeHomeServer.PHOTO_PARAM, SafeHomeServer.PHOTO_PATH + fileName);
 				values.put(SafeHomeServer.COMMAND_PARAM, SafeHomeServer.UPLOAD_PHOTO);
 				
-				MockDatabaseAccess db = new MockDatabaseAccess();
-				Boolean status = false;
-				status = db.connect(null, null);
-				status = db.insert("My table", values);
-				if(status){
-					SafeHomeServer.forApp.putIfAbsent(rpi, new ConcurrentLinkedQueue<String>());
-					SafeHomeServer.forApp.get(rpi).add(SafeHomeServer.REQ_PHOTOTAKEN);
-					log.info("--Send event to the app " + SafeHomeServer.REQ_PHOTOTAKEN);
-				
-					return SafeHomeServer.OK_ANSWER;
+				DatabaseAccessImpl db;
+				try {
+					db = new DatabaseAccessImpl();
+					Boolean status = false;
+					status = db.connect(null, null);
+					status = db.insert("My table", values);
+					if(status){
+						SafeHomeServer.forApp.putIfAbsent(rpi, new ConcurrentLinkedQueue<String>());
+						SafeHomeServer.forApp.get(rpi).add(SafeHomeServer.REQ_PHOTOTAKEN);
+						log.info("--Send event to the app " + SafeHomeServer.REQ_PHOTOTAKEN);
+					
+						return SafeHomeServer.OK_ANSWER;
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+				
 			}
 		}
 
@@ -137,17 +152,24 @@ public class RpiRequestProcessor implements RequestProcessor{
 			}
 			values.put(SafeHomeServer.COMMAND_PARAM, command);
 			
-			MockDatabaseAccess db = new MockDatabaseAccess();
-			Boolean status = false;
-			status = db.connect(null, null);
-			status = db.insert("My table", values);
-			if(status){
-				SafeHomeServer.forApp.putIfAbsent(rpiId, new ConcurrentLinkedQueue<String>());
-				SafeHomeServer.forApp.get(rpiId).add(command);
-				log.info("--Send event to the app " + command);
-				
-				return SafeHomeServer.OK_ANSWER;
+			DatabaseAccessImpl db;
+			try {
+				db = new DatabaseAccessImpl();
+				Boolean status = false;
+				status = db.connect(null, null);
+				status = db.insert("My table", values);
+				if(status){
+					SafeHomeServer.forApp.putIfAbsent(rpiId, new ConcurrentLinkedQueue<String>());
+					SafeHomeServer.forApp.get(rpiId).add(command);
+					log.info("--Send event to the app " + command);
+					
+					return SafeHomeServer.OK_ANSWER;
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			
 		}
 	
 		return SafeHomeServer.ERROR_ANSWER;

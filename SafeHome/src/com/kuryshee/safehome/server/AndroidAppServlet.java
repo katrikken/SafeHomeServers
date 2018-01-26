@@ -48,6 +48,13 @@ public class AndroidAppServlet extends HttpServlet {
 		String action = db.getTextPart(request, AppCommunicationConsts.ACTION);
 		
 		AppPostRequestProcessor processor = new AppPostRequestProcessor();
-		processor.process(response.getOutputStream(), token, action);
+		switch (action) {
+			case AppCommunicationConsts.GET_TOKEN: processor.getToken(response.getOutputStream(),
+					db.getTextPart(request, AppCommunicationConsts.LOGIN),
+					db.getTextPart(request, AppCommunicationConsts.PASSWORD));
+				break;
+			case AppCommunicationConsts.VALIDATE: processor.validateToken(response.getOutputStream(), token);
+				break;
+		}
 	}
 }

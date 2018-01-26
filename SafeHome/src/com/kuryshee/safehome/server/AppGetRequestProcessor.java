@@ -1,6 +1,7 @@
 package com.kuryshee.safehome.server;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -8,21 +9,30 @@ import javax.servlet.ServletOutputStream;
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
 import com.kuryshee.safehome.requestprocessorinterface.RequestProcessor;
-import com.sun.istack.internal.logging.Logger;
+import java.util.logging.Logger;
 
 
 public class AppGetRequestProcessor implements RequestProcessor{
 	
-	private DatabaseAccessInterface database = new MockDatabaseAccess();
+	private DatabaseAccessInterface database;
 	
 	private String user;
+	
+	public AppGetRequestProcessor() {
+		try {
+			database = new DatabaseAccessImpl();
+		} catch (SQLException ex) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		}
+	}
 	
 	/**
 	 * Gets the user from the database.
 	 * @param token
 	 * @return true, if the user is found, false otherwise.
+	 * @throws SQLException 
 	 */
-	private boolean getUserByToken(String token) {
+	private boolean getUserByToken(String token) throws SQLException {
 		user = database.getUserByToken(token);
 		
 		if(user.length() > 0)
@@ -47,7 +57,7 @@ public class AppGetRequestProcessor implements RequestProcessor{
 				}
 				else if (action != null){
 					if(parameters[0] != null && getUserByToken(parameters[0])) {
-						
+						//todo action process
 					}
 					else {
 						output.println(AppCommunicationConsts.REQUEST_FORMAT_ERROR);
@@ -59,7 +69,13 @@ public class AppGetRequestProcessor implements RequestProcessor{
 			}
 		}
 		catch(Exception e) {
-			Logger.getLogger(AppGetRequestProcessor.class).log(Level.SEVERE, e.getMessage(), e);
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			try {
+				output.println(AppCommunicationConsts.ERROR);
+			}
+			catch(IOException ex) {
+				Logger.getLogger(AppPostRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
 		}
 	}
 }
