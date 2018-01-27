@@ -27,6 +27,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	Connection conn;
 	
 	public DatabaseAccessImpl() throws SQLException {
+		ds = new OracleDataSource();
 		ds.setURL("jdbc:oracle:thin:katrikken/952009@localhost:1521:XE");
 		conn = ds.getConnection("katrikken", "952009");
 	}

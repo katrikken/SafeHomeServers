@@ -2,9 +2,7 @@
     <wb-module deploy-name="SafeHome">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <dependent-module archiveName="RequestProcessor.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/RequestProcessor/RequestProcessor">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
+        <wb-resource deploy-path="/" source-path="/WebContent/WEB-INF/lib"/>
         <property name="context-root" value="SafeHome"/>
         <property name="java-output-path" value="/SafeHome/build/classes"/>
     </wb-module>

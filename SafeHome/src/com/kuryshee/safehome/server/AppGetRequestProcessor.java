@@ -21,7 +21,7 @@ public class AppGetRequestProcessor implements RequestProcessor{
 	public AppGetRequestProcessor() {
 		try {
 			database = new DatabaseAccessImpl();
-		} catch (SQLException ex) {
+		} catch (Exception ex) {
 			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
 		}
 	}

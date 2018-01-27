@@ -3,7 +3,6 @@
 	<name>SafeHome</name>
 	<comment></comment>
 	<projects>
-		<project>RequestProcessor</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

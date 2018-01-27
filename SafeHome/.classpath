@@ -11,6 +11,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat9"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/RequestProcessor"/>
-	<classpathentry kind="lib" path="C:/Users/Katrikken.Lenovo-PC/Documents/Oracle/ojdbc6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Katrikken.Lenovo-PC/Documents/Oracle/ojdbc6.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

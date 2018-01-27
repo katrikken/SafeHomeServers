@@ -1,6 +1,9 @@
 package com.kuryshee.safehome.server;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -30,6 +33,8 @@ public class AndroidAppServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Logger.getLogger(AndroidAppServlet.class.getName()).log(Level.INFO, "--Android GET request registered");
+		
 		String token = request.getHeader(AppCommunicationConsts.TOKEN);
 		String query = request.getQueryString();
 		
@@ -42,6 +47,8 @@ public class AndroidAppServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Logger.getLogger(AndroidAppServlet.class.getName()).log(Level.INFO, "--Android POST request registered");
+		
 		String token = request.getHeader(AppCommunicationConsts.TOKEN);
 		
 		DataRetriever db = new DataRetriever();
