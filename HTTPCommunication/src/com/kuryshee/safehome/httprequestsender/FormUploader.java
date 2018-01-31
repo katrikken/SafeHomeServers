@@ -38,7 +38,11 @@ public class FormUploader {
      * @throws IOException
      */
     public FormUploader(String request, String charset) throws IOException {
-    	if(charset == null) this.charset = "UTF-8";
+    	if(charset == null) {
+    		charset = "UTF-8";
+    	}
+    	
+    	this.charset = "UTF-8";
              
         boundary = System.currentTimeMillis() + "";
          

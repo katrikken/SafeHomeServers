@@ -5,10 +5,17 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.servlet.ServletOutputStream;
+import oracle.jdbc.pool.OracleDataSource;
+
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
 import com.kuryshee.safehome.requestprocessorinterface.RequestProcessor;
+
+import javax.sql.DataSource;
+
 import java.util.logging.Logger;
 
 
@@ -18,9 +25,10 @@ public class AppGetRequestProcessor implements RequestProcessor{
 	
 	private String user;
 	
-	public AppGetRequestProcessor() {
+	public AppGetRequestProcessor(InitialContext context) {
 		try {
-			database = new DatabaseAccessImpl();
+			Context envContext  = (Context) context.lookup("java:/comp/env");
+			database = new DatabaseAccessImpl((DataSource)  envContext.lookup("jdbc/xe"));
 		} catch (Exception ex) {
 			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
 		}

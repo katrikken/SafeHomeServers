@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context crossContext="true" reloadable="true" >
+	<Resource name="jdbc/xe" 
+      auth="Container" 
+      type="javax.sql.DataSource" 
+	  username="katrikken" 
+      password="952009"
+	  url="jdbc:oracle:thin:@localhost:1521:XE" 
+      driverClassName="oracle.jdbc.driver.OracleDriver" 
+	  maxActive="20"
+      maxIdle="10" 
+      validationQuery="select sysdate from dual"/>
+</Context>

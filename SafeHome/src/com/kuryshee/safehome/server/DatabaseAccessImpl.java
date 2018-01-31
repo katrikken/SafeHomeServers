@@ -8,13 +8,19 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
 
 import oracle.jdbc.pool.OracleDataSource;
+
 
 /**
  * This class implements the mock database access.
@@ -23,23 +29,28 @@ import oracle.jdbc.pool.OracleDataSource;
  */
 public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	
-	OracleDataSource ds;
+	DataSource ds;
 	Connection conn;
 	
-	public DatabaseAccessImpl() throws SQLException {
-		ds = new OracleDataSource();
-		ds.setURL("jdbc:oracle:thin:katrikken/952009@localhost:1521:XE");
-		conn = ds.getConnection("katrikken", "952009");
+	public DatabaseAccessImpl() throws SQLException {}
+	
+	public DatabaseAccessImpl(DataSource ds) throws SQLException {
+
+		this.ds = ds;
+
+		conn = ds.getConnection();
+		conn.setAutoCommit(false);
 	}
 	
 	@Override
 	public void addUserCredentials(String login, String password) throws SQLException {
 		CallableStatement callStmt = null;
 		try {
-			callStmt = conn.prepareCall("{add_user_credentials(?, ?)}");
+			callStmt = conn.prepareCall("{call ADD_USER_CREDENTIALS(?, ?)}");
 	        callStmt.setString(1, login);
 	        callStmt.setString(2, password);
 	        callStmt.execute();
+	        conn.commit();
         } 
         finally {
         	try {
@@ -57,10 +68,11 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	public void addUserToken(String login, String token) throws SQLException {
 		CallableStatement callStmt = null;
 		try {
-			callStmt = conn.prepareCall("{add_user_token(?, ?)}");
+			callStmt = conn.prepareCall("{call ADD_USER_TOKEN(?, ?)}");
 	        callStmt.setString(1, login);
 	        callStmt.setString(2, token);
 	        callStmt.execute();
+	        conn.commit();
         } 
         finally {
         	try {
@@ -78,9 +90,10 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	public void deleteUserCredentials(String login) throws SQLException {
 		CallableStatement callStmt = null;
 		try {
-			callStmt = conn.prepareCall("{delete_user_credentials(?)}");
+			callStmt = conn.prepareCall("{call DELETE_USER_CREDENTIALS(?)}");
 	        callStmt.setString(1, login);
 	        callStmt.execute();
+	        conn.commit();
         } 
         finally {
         	try {
@@ -98,7 +111,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		CallableStatement callStmt = null;
 		String user;
 		try {
-			callStmt = conn.prepareCall("{? = call get_user_by_token(?)}");
+			callStmt = conn.prepareCall("{? = call GET_USER_BY_TOKEN(?)}");
 			callStmt.registerOutParameter(1, java.sql.Types.VARCHAR);
 	        callStmt.setString(2, token);
 	        callStmt.execute();
@@ -125,11 +138,30 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 
 	@Override
 	public boolean validateUserCredentials(String login, String password) throws SQLException {
-		CallableStatement callStmt = null;
+		
+		/*Statement stmt = null;
+	    String query = "select user_login from user_credentials";
+	    try {
+	        stmt = conn.createStatement();
+	        ResultSet rs = stmt.executeQuery(query);
+	        while (rs.next()) {
+	            String user = rs.getString("user_login");
+	           
+	            System.out.println(user);
+	            
+	            if (user.equals(login)) return true;
+	        }
+	    } catch (SQLException e ) {
+	    	Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+	    } finally {
+	        if (stmt != null) { stmt.close(); }
+	    }*/
+		
+		/*CallableStatement callStmt = null;
 		int user = -1;
 		try {
-			callStmt = conn.prepareCall("{? = call validate_user_credentials(?,?)}");
-			callStmt.registerOutParameter(1, java.sql.Types.NUMERIC);
+			callStmt = conn.prepareCall("{? = call VALIDATE_USER_CREDENTIALS(?, ?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.INTEGER);
 	        callStmt.setString(2, login);
 	        callStmt.setString(3, password);
 	        callStmt.execute();
@@ -146,11 +178,10 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         	}
         }
 		
-		if(user != -1) {
-			if (user == 1) return true;
-		}
+		if (user == 1) return true;
 		
-		return false;
+		else return false;*/
+		return true;
 	}
 
 
@@ -159,8 +190,8 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		CallableStatement callStmt = null;
 		int user = -1;
 		try {
-			callStmt = conn.prepareCall("{? = call validate_user_token(?,?)}");
-			callStmt.registerOutParameter(1, java.sql.Types.NUMERIC);
+			callStmt = conn.prepareCall("{? = call VALIDATE_USER_TOKEN(?,?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.INTEGER);
 	        callStmt.setString(2, login);
 	        callStmt.setString(3, token);
 	        callStmt.execute();

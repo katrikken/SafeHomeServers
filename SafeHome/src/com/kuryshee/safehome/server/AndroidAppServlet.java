@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -38,9 +40,13 @@ public class AndroidAppServlet extends HttpServlet {
 		String token = request.getHeader(AppCommunicationConsts.TOKEN);
 		String query = request.getQueryString();
 		
-		AppGetRequestProcessor processor = new AppGetRequestProcessor();
-		
-		processor.process(response.getOutputStream(), token, query);
+		AppGetRequestProcessor processor;
+		try {
+			processor = new AppGetRequestProcessor(new InitialContext());
+			processor.process(response.getOutputStream(), token, query);
+		} catch (NamingException e) {
+			response.getWriter().println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+		}
 	}
 
 	/**
@@ -54,14 +60,20 @@ public class AndroidAppServlet extends HttpServlet {
 		DataRetriever db = new DataRetriever();
 		String action = db.getTextPart(request, AppCommunicationConsts.ACTION);
 		
-		AppPostRequestProcessor processor = new AppPostRequestProcessor();
-		switch (action) {
-			case AppCommunicationConsts.GET_TOKEN: processor.getToken(response.getOutputStream(),
-					db.getTextPart(request, AppCommunicationConsts.LOGIN),
-					db.getTextPart(request, AppCommunicationConsts.PASSWORD));
-				break;
-			case AppCommunicationConsts.VALIDATE: processor.validateToken(response.getOutputStream(), token);
-				break;
+		AppPostRequestProcessor processor;
+		try {
+			processor = new AppPostRequestProcessor(new InitialContext());
+			
+			switch (action) {
+				case AppCommunicationConsts.GET_TOKEN: processor.getToken(response.getOutputStream(),
+						db.getTextPart(request, AppCommunicationConsts.LOGIN),
+						db.getTextPart(request, AppCommunicationConsts.PASSWORD));
+					break;
+				case AppCommunicationConsts.VALIDATE: processor.validateToken(response.getOutputStream(), token);
+					break;
+			}
+		} catch (NamingException e) {
+			response.getWriter().println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
 		}
 	}
 }

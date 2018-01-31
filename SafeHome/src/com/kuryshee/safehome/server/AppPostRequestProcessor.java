@@ -5,7 +5,11 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletOutputStream;
+import javax.sql.DataSource;
 
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
@@ -14,10 +18,11 @@ public class AppPostRequestProcessor{
 	
 	private DatabaseAccessInterface database;
 	
-	public AppPostRequestProcessor() {
+	public AppPostRequestProcessor(InitialContext context){
 		try {
-			database = new DatabaseAccessImpl();
-		} catch (SQLException ex) {
+			Context envContext  = (Context) context.lookup("java:/comp/env");
+			database = new DatabaseAccessImpl((DataSource) envContext.lookup("jdbc/xe"));
+		} catch (Exception ex) {
 			Logger.getLogger(AppPostRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
 		}
 	}
@@ -40,17 +45,17 @@ public class AppPostRequestProcessor{
 	 * @param login
 	 * @param password
 	 */
-	public void getToken(ServletOutputStream output, String login, String password) {
+	public void getToken(ServletOutputStream output, String login, String password) {	
 		try {
-			Boolean userExists = database.validateUserCredentials(login, password);
-			
-			if(userExists) {
+		
+			if(database.validateUserCredentials(login, password)) {
 				String token = createToken(login, password);
 				database.addUserToken(login, token);
 				output.println(token);
 			}
-			else
+			else {
 				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
+			}
 		}
 		catch(Exception e) {
 			Logger.getLogger(AppPostRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);

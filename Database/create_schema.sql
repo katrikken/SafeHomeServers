@@ -1,158 +1,158 @@
--- Table of users and passwords
-create table user_credentials(
-  user_login character varying (15) not null
-	primary key,
+-- TABLE OF USERS AND PASSWORDS
+CREATE TABLE USER_CREDENTIALS(
+  USER_LOGIN CHARACTER VARYING (15) NOT NULL
+	PRIMARY KEY,
 
-  user_password character varying(15) not null
+  USER_PASSWORD CHARACTER VARYING(15) NOT NULL
 );
 
---Inserts a row with new user data or changes the existing row.
-create procedure add_user_credentials(
-  u_login user_credentials.user_login%type, -- user login
-  u_password user_credentials.user_password%type -- user password
+--INSERTS A ROW WITH NEW USER DATA OR CHANGES THE EXISTING ROW.
+CREATE PROCEDURE ADD_USER_CREDENTIALS(
+  U_LOGIN USER_CREDENTIALS.USER_LOGIN%TYPE, -- USER LOGIN
+  U_PASSWORD USER_CREDENTIALS.USER_PASSWORD%TYPE -- USER PASSWORD
 )
-as
-begin
-  insert into user_credentials(
-      user_login,
-      user_password
+AS
+BEGIN
+  INSERT INTO USER_CREDENTIALS(
+      USER_LOGIN,
+      USER_PASSWORD
       ) 
-    values(
-      u_login,
-      u_password
+    VALUES(
+      U_LOGIN,
+      U_PASSWORD
       );
-  exception
-    when dup_val_on_index then
-      update user_credentials
-	  set user_password=u_password
-	  where user_login=u_login;
-end add_user_credentials;
+  EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+      UPDATE USER_CREDENTIALS
+	  SET USER_PASSWORD=U_PASSWORD
+	  WHERE USER_LOGIN=U_LOGIN;
+END ADD_USER_CREDENTIALS;
 /
 
---Deletes the row with user data.
-create procedure delete_user_credentials(
-  u_login user_credentials.user_login%type -- user login
+--DELETES THE ROW WITH USER DATA.
+CREATE PROCEDURE DELETE_USER_CREDENTIALS(
+  U_LOGIN USER_CREDENTIALS.USER_LOGIN%TYPE -- USER LOGIN
 )
-as
-begin
-  delete from user_credentials u 
-    where u_login=u.user_login;
+AS
+BEGIN
+  DELETE FROM USER_CREDENTIALS U 
+    WHERE U_LOGIN=U.USER_LOGIN;
 	
-end delete_user_credentials;
+END DELETE_USER_CREDENTIALS;
 /
 
 
-commit;
+COMMIT;
 
 
--- Returns true if a user exists with the given password.
-create function validate_user_credentials(
-    u_login user_credentials.user_login%type, -- user login
-    u_password user_credentials.user_password%type -- user password
-  ) return number  -- 1 if the data are valid, 0 otherwise
-as
-  u_count number(2,0);
-  retval number(1,0);
-begin
-  select count(*) into u_count
-	from user_credentials uc
-	 where uc.user_login = u_login and uc.user_password = u_password;
+-- RETURNS TRUE IF A USER EXISTS WITH THE GIVEN PASSWORD.
+CREATE FUNCTION VALIDATE_USER_CREDENTIALS(
+    U_LOGIN USER_CREDENTIALS.USER_LOGIN%TYPE, -- USER LOGIN
+    U_PASSWORD USER_CREDENTIALS.USER_PASSWORD%TYPE -- USER PASSWORD
+  ) RETURN INTEGER  -- 1 IF THE DATA ARE VALID, 0 OTHERWISE
+AS
+  U_COUNT NUMBER(2,0);
+  RETVAL NUMBER(1,0);
+BEGIN
+  SELECT COUNT(*) INTO U_COUNT
+	FROM USER_CREDENTIALS UC
+	 WHERE UC.USER_LOGIN = U_LOGIN AND UC.USER_PASSWORD = U_PASSWORD;
   
-  if u_count = 1
-    then
-      retval := 1;
-    else
-      retval := 0;
-  end if; 
+  IF U_COUNT = 1
+    THEN
+      RETVAL := 1;
+    ELSE
+      RETVAL := 0;
+  END IF; 
   
-  return retval;
-end;
+  RETURN RETVAL;
+END;
 /
 
--- Table of users' authorization tokens
-create table user_tokens(
-  user_login character varying (15) not null,
+-- TABLE OF USERS' AUTHORIZATION TOKENS
+CREATE TABLE USER_TOKENS(
+  USER_LOGIN CHARACTER VARYING (15) NOT NULL,
   
-  constraint ut_user_login 
-    foreign key(user_login)
-	  references user_credentials(user_login)
-	    on delete cascade,
+  CONSTRAINT UT_USER_LOGIN 
+    FOREIGN KEY(USER_LOGIN)
+	  REFERENCES USER_CREDENTIALS(USER_LOGIN)
+	    ON DELETE CASCADE,
 
-  user_token character varying(40) not null
-    constraint ut_user_token
-      unique
+  USER_TOKEN CHARACTER VARYING(40) NOT NULL
+    CONSTRAINT UT_USER_TOKEN
+      UNIQUE
 );
 
-commit;
+COMMIT;
 
---Inserts a row with new user token or changes the token if the row exists.
-create procedure add_user_token(
-  u_login user_tokens.user_login%type, -- user login
-  u_token user_tokens.user_token%type -- user token
+--INSERTS A ROW WITH NEW USER TOKEN OR CHANGES THE TOKEN IF THE ROW EXISTS.
+CREATE PROCEDURE ADD_USER_TOKEN(
+  U_LOGIN USER_TOKENS.USER_LOGIN%TYPE, -- USER LOGIN
+  U_TOKEN USER_TOKENS.USER_TOKEN%TYPE -- USER TOKEN
 )
-as
-begin
-  delete from user_tokens ut 
-    where u_login = ut.user_login; -- Delete previous tokens.
+AS
+BEGIN
+  DELETE FROM USER_TOKENS UT 
+    WHERE U_LOGIN = UT.USER_LOGIN; -- DELETE PREVIOUS TOKENS.
 	
-  insert into user_tokens(
-      user_login,
-      user_token
+  INSERT INTO USER_TOKENS(
+      USER_LOGIN,
+      USER_TOKEN
       ) 
-    values(
-      u_login,
-      u_token
+    VALUES(
+      U_LOGIN,
+      U_TOKEN
       );
-  exception
-    when dup_val_on_index then
-      raise_application_error(
+  EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+      RAISE_APPLICATION_ERROR(
       00001, 
-      'The token is not unique!'
+      'THE TOKEN IS NOT UNIQUE!'
       );
-end add_user_token;
+END ADD_USER_TOKEN;
 /
 
--- Validates user token.
-create function validate_user_token(
-    u_login user_tokens.user_login%type, -- user login
-    u_token user_tokens.user_token%type -- user token
-  ) return number  -- 1 if the data are valid, 0 otherwise
-as
-  u_count number(2,0);
-  retval number(1,0);
-begin
-  select count(*) into u_count
-	from user_tokens ut
-	 where ut.user_login = u_login and ut.user_token = u_token;
+-- VALIDATES USER TOKEN.
+CREATE FUNCTION VALIDATE_USER_TOKEN(
+    U_LOGIN USER_TOKENS.USER_LOGIN%TYPE, -- USER LOGIN
+    U_TOKEN USER_TOKENS.USER_TOKEN%TYPE -- USER TOKEN
+  ) RETURN INTEGER  -- 1 IF THE DATA ARE VALID, 0 OTHERWISE
+AS
+  U_COUNT NUMBER(2,0);
+  RETVAL NUMBER(1,0);
+BEGIN
+  SELECT COUNT(*) INTO U_COUNT
+	FROM USER_TOKENS UT
+	 WHERE UT.USER_LOGIN = U_LOGIN AND UT.USER_TOKEN = U_TOKEN;
   
-  if u_count = 1
-    then
-      retval := 1;
-    else
-      retval := 0;
-  end if; 
+  IF U_COUNT = 1
+    THEN
+      RETVAL := 1;
+    ELSE
+      RETVAL := 0;
+  END IF; 
   
-  return retval;
-end;
+  RETURN RETVAL;
+END;
 /
 
--- Returns the user, which owns the token.
-create function get_user_by_token(
-    u_token user_tokens.user_token%type -- user token
-  ) return user_tokens.user_login%type  -- user login
-as
-  retval user_tokens.user_login%type;
-begin
-  select user_login into retval
-	from user_tokens ut
-	 where ut.user_token = u_token;
+-- RETURNS THE USER, WHICH OWNS THE TOKEN.
+CREATE FUNCTION GET_USER_BY_TOKEN(
+    U_TOKEN USER_TOKENS.USER_TOKEN%TYPE -- USER TOKEN
+  ) RETURN USER_TOKENS.USER_LOGIN%TYPE  -- USER LOGIN
+AS
+  RETVAL USER_TOKENS.USER_LOGIN%TYPE;
+BEGIN
+  SELECT USER_LOGIN INTO RETVAL
+	FROM USER_TOKENS UT
+	 WHERE UT.USER_TOKEN = U_TOKEN;
   
-  return retval;
+  RETURN RETVAL;
   
-  exception
-    when no_data_found then
-      return '';
-end;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      RETURN '';
+END;
 /
 
-commit;
+COMMIT;
