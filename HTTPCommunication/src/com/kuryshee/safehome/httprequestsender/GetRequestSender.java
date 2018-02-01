@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
+
 /**
  * This class implements the set of functions for sending GET requests.
  * @author Ekaterina Kurysheva
@@ -19,6 +21,11 @@ public class GetRequestSender {
 
     private HttpURLConnection connection;
     private final int TEN_SEC = 10000;
+    private String token = null;
+    
+    public void setToken(String token) {
+    	this.token = token;
+    }
     
     /**
      * This method connects to the server and tries to get the answer.
@@ -37,7 +44,10 @@ public class GetRequestSender {
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
-            connection.setRequestProperty("Accept-Charset", charset);                
+            connection.setRequestProperty("Accept-Charset", charset);   
+			if(this.token != null) {
+				connection.setRequestProperty(AppCommunicationConsts.TOKEN, token);
+			}
             connection.setConnectTimeout(TEN_SEC); 
             connection.connect();
             try(BufferedReader reader = new BufferedReader(

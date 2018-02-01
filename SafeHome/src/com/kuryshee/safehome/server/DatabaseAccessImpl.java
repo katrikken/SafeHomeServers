@@ -76,7 +76,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         } 
         finally {
         	try {
-	        	callStmt.close();
+	        	if(callStmt != null ) callStmt.close();
 	        	conn.close();
         	}
         	catch(Exception e) {
@@ -128,6 +128,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         	}
         }
 		
+		System.out.println(token + ' ' + user);
 		if(user != null && user.length() > 0) {
 			return user;
 		}
@@ -139,25 +140,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	@Override
 	public boolean validateUserCredentials(String login, String password) throws SQLException {
 		
-		/*Statement stmt = null;
-	    String query = "select user_login from user_credentials";
-	    try {
-	        stmt = conn.createStatement();
-	        ResultSet rs = stmt.executeQuery(query);
-	        while (rs.next()) {
-	            String user = rs.getString("user_login");
-	           
-	            System.out.println(user);
-	            
-	            if (user.equals(login)) return true;
-	        }
-	    } catch (SQLException e ) {
-	    	Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-	    } finally {
-	        if (stmt != null) { stmt.close(); }
-	    }*/
-		
-		/*CallableStatement callStmt = null;
+		CallableStatement callStmt = null;
 		int user = -1;
 		try {
 			callStmt = conn.prepareCall("{? = call VALIDATE_USER_CREDENTIALS(?, ?)}");
@@ -171,7 +154,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         finally {
         	try {
 	        	callStmt.close();
-	        	conn.close();
         	}
         	catch(Exception e) {
         		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -180,8 +162,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		
 		if (user == 1) return true;
 		
-		else return false;*/
-		return true;
+		else return false;
 	}
 
 

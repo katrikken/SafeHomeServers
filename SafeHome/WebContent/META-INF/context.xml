@@ -7,7 +7,7 @@
       password="952009"
 	  url="jdbc:oracle:thin:@localhost:1521:XE" 
       driverClassName="oracle.jdbc.driver.OracleDriver" 
-	  maxActive="20"
+	  maxTotal="20"
       maxIdle="10" 
       validationQuery="select sysdate from dual"/>
 </Context>

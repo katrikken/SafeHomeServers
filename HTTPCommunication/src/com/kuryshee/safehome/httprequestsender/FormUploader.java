@@ -59,6 +59,15 @@ public class FormUploader {
     }
  
     /**
+     * Adds header to the request.
+     * @param key of the header
+     * @param value for the key.
+     */
+    public void addHeader(String key, String value) {
+    	connection.setRequestProperty(key, value);
+    }
+    
+    /**
      * Adds a file to the request
      * @param inputName name attribute in HTML form input
      * @param uploadFile a File to be uploaded

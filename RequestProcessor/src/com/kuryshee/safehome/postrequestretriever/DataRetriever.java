@@ -71,7 +71,7 @@ public class DataRetriever {
 			    	value.append(buffer, 0, length);
 			    }
 			    
-			    return value.toString();
+			    return value.toString().trim();
 			}
 		}
 		catch(IOException | ServletException e){
