@@ -25,10 +25,10 @@ public class FormUploader {
     private final String boundary;
     
     private static final String LINE_END = "\r\n";
-    private HttpURLConnection connection;
+    private HttpURLConnection connection = null;
     private String charset;
     private OutputStream outputStream;
-    private PrintWriter writer;
+    private PrintWriter writer = null;
     private int TWENTY_SEC = 20000;
  
     /**
@@ -53,18 +53,27 @@ public class FormUploader {
         connection.setDoInput(true);
         connection.setRequestProperty("Content-Type",
                 "multipart/form-data; boundary=" + boundary);
-        connection.setRequestProperty("Accept-Charset", charset);
-        outputStream = connection.getOutputStream();
-        writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+        connection.setRequestProperty("Accept-Charset", charset);  
     }
  
     /**
      * Adds header to the request.
+     * The method must be called before {@link FormUploader#connect()}.
      * @param key of the header
      * @param value for the key.
      */
     public void addHeader(String key, String value) {
     	connection.setRequestProperty(key, value);
+    }
+    
+    /**
+     * Finishes settings of the connection and gets output stream for writing data.
+     * The method must be called before {@link FormUploader#addFormField(String, String)} or {@link FormUploader#addFilePart(String, File)} methods.
+     * @throws IOException 
+     */
+    public void connect() throws IOException {
+    	outputStream = connection.getOutputStream();
+        writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
     }
     
     /**
