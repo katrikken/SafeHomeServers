@@ -127,8 +127,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
         	}
         }
-		
-		System.out.println(token + ' ' + user);
+
 		if(user != null && user.length() > 0) {
 			return user;
 		}
