@@ -305,27 +305,49 @@ END ADD_RPI_ACTION;
 /
 
 -- RETURNS LATEST ACTIONS ON RASPBERRY PI.
-CREATE FUNCTION GET_LATEST_RPI_ACTIONS(
+CREATE function GET_LATEST_RPI_ACTIONS(
     P_RPI_ID RPI_DEVICES.RPI_ID%TYPE, -- RPI ID,
-	P_COUNT NUMBER -- NUMBER OF ACTIONS TO RETURN
-  ) RETURN SYS_REFCURSOR
-IS
-  RETVAL SYS_REFCURSOR;
+	P_COUNT NUMBER -- NUMBER OF ACTIONS TO RETURN, USE MAXIMUM OF 10
+  ) RETURN CLOB -- returns JSON of times and actions [{"t":"time","a":"action"},{"t":"time","a":"action"},...]
+as
+  cursor c is
+    SELECT to_char(ACTION_DATE, 'DD-MM-YYYY HH24:MI:SS.FF') as ACTION_DATE, ACTION_INFO
+        FROM RPI_ACTIONS
+          WHERE RPI_ID = P_RPI_ID and ROWNUM <= P_COUNT
+            ORDER BY ACTION_DATE ASC;
+
+  retval varchar2(1000);
+  retvalclob CLOB;
+  timev varchar2(5);
+  actionv varchar2(4);
+  quotm varchar2(1);
+  delim varchar2(1);
+  brace varchar2(1);
+  sqbrace varchar2(1);
 BEGIN
-  OPEN RETVAL FOR
-    SELECT * FROM (SELECT ACTION_DATE, ACTION_INFO
-      FROM RPI_ACTIONS
-        WHERE RPI_ID = P_RPI_ID
-          ORDER BY ACTION_DATE ASC) 
-    WHERE ROWNUM <= P_COUNT;
+  retvalclob := '[';
+  retval := '';
+  timev := '{"t":';
+  actionv := '"a":';
+  quotm := '"';
+  brace := '}';
+  delim := '';
+  sqbrace := ']';
 
-  RETURN RETVAL;
-
-  EXCEPTION
-    WHEN NO_DATA_FOUND THEN RETURN NULL;
-END;
-/
-
+  for r in c loop
+    retval := retval || delim 
+	  || timev || quotm || r.action_date || quotm;
+	delim := ',';
+	retval := retval || delim
+	  || actionv || quotm || r.action_info || quotm
+	  || brace;
+  end loop;
+  retval := retval || sqbrace;
+  
+  dbms_lob.append(retvalclob, retval);
+  return retvalclob;
+end;
+    
 COMMIT;
 
 CREATE TABLE RPI_PHOTOS(
