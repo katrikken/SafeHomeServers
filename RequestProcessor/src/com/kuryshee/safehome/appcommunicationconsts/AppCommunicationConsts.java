@@ -7,6 +7,7 @@ public class AppCommunicationConsts {
 	public static final String PING = "ping";
 	public static final String PONG = "pong";
 	public static final String COUNT = "count";
+	public static final String TIME = "time";
 	
 	public static final String GET_TOKEN = "gettoken";
 	public static final String LOGIN = "login";

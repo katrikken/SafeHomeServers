@@ -24,6 +24,7 @@ public class AppGetRequestProcessor implements RequestProcessor{
 	private DatabaseAccessInterface database;
 	
 	private String user;
+	private String rpiId;
 	
 	public AppGetRequestProcessor(InitialContext context) {
 		try {
@@ -49,31 +50,47 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		return false;
 	}
 	
-	private void getDataFromDatabase(ServletOutputStream output, String action) throws IOException {
-		output.println("data"); //todo
-	}
-	
-	private void getRpiActions(ServletOutputStream output) {
+	private void getRpiActions(ServletOutputStream output, String time) {
 		try {
-			//todo get rpi by user
-			//get rpi actions with number 10
-			//write to stream
-			
+			rpiId = database.getRpiByUser(user);
+			if(rpiId != null && rpiId.length() > 0) {
+				output.write(database.getRpiActionsAfterDate(rpiId, time, 10));
+			}
+			else {
+				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
+			}
 		}
 		catch(Exception e) {
 			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			
+			try {
+				output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+			}
+			catch(IOException ex) {
+				Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
 		}
 	}
 	
 	private void getLatestActionTime(ServletOutputStream output) {
 		try {
-			//todo get rpi by user
-			//get latest time
-			//write to stream
-			
+			rpiId = database.getRpiByUser(user);
+			if(rpiId != null && rpiId.length() > 0) {
+				output.println(database.getLatestRpiActionTime(rpiId));
+			}
+			else {
+				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
+			}
 		}
 		catch(Exception e) {
 			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			
+			try {
+				output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+			}
+			catch(IOException ex) {
+				Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
 		}
 	}
 	
@@ -91,7 +108,7 @@ public class AppGetRequestProcessor implements RequestProcessor{
 				else if (action != null){
 					if(token != null && getUserByToken(token)) { //if token is passed and user is identified
 						switch(action) {
-							case AppCommunicationConsts.GET_ACTIONS: getRpiActions(output);
+							case AppCommunicationConsts.GET_ACTIONS: getRpiActions(output, params.get(AppCommunicationConsts.TIME));
 								break;
 							case AppCommunicationConsts.GET_LATEST_TIME: getLatestActionTime(output);
 								break; 

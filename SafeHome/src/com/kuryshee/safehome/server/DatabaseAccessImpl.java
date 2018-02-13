@@ -242,6 +242,30 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	}
 	
 	@Override
+	public String getRpiByUser(String user) throws SQLException{
+		CallableStatement callStmt = null;
+		String rpiId = null;
+		try {
+			callStmt = conn.prepareCall("{? = call GET_RPI_BY_USER(?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.VARCHAR);
+	        callStmt.setString(2, user);
+	        callStmt.execute();
+	        
+	        rpiId = callStmt.getString(1);
+        } 
+        finally {
+        	try {
+	        	callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		return rpiId;
+	}
+	
+	@Override
 	public String getLatestRpiActionTime(String rpiId) throws SQLException, IOException {
 		CallableStatement callStmt = null;
 		Timestamp time = null;

@@ -75,4 +75,12 @@ public interface DatabaseAccessInterface {
 	 */
 	public byte[] getRpiActionsAfterDate(String rpiId, String date, int numberOfActions) throws SQLException, IOException;
 	
+	/**
+	 * Retrieves information about user and Rpi relation.
+	 * @param user
+	 * @return Rpi ID for the given user
+	 * @throws SQLException
+	 */
+	public String getRpiByUser(String user) throws SQLException;
+	
 }
