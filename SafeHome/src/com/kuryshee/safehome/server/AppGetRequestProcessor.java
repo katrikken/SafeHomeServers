@@ -53,27 +53,60 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		output.println("data"); //todo
 	}
 	
+	private void getRpiActions(ServletOutputStream output) {
+		try {
+			//todo get rpi by user
+			//get rpi actions with number 10
+			//write to stream
+			
+		}
+		catch(Exception e) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+		}
+	}
+	
+	private void getLatestActionTime(ServletOutputStream output) {
+		try {
+			//todo get rpi by user
+			//get latest time
+			//write to stream
+			
+		}
+		catch(Exception e) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+		}
+	}
+	
 	@Override
 	public void process(ServletOutputStream output, String... parameters) {
 		try {
-			if(parameters[1] != null) {
+			if(parameters[1] != null) { //expecting query here
 				Map<String, String> params = parseQuery(parameters[1]);
 				String action = params.get(AppCommunicationConsts.ACTION);
+				String token = parameters[0];
 				
 				if(action != null && action.equals(AppCommunicationConsts.PING)) {
 					output.println(AppCommunicationConsts.PONG);
 				}
 				else if (action != null){
-					if(parameters[0] != null && getUserByToken(parameters[0])) {
-						//todo action process
+					if(token != null && getUserByToken(token)) { //if token is passed and user is identified
+						switch(action) {
+							case AppCommunicationConsts.GET_ACTIONS: getRpiActions(output);
+								break;
+							case AppCommunicationConsts.GET_LATEST_TIME: getLatestActionTime(output);
+								break; 
+						}
 					}
 					else {
-						output.println(AppCommunicationConsts.REQUEST_FORMAT_ERROR);
+						output.println(AppCommunicationConsts.INVALID_USER_ERROR);
 					}
 				}
 				else {
 					output.println(AppCommunicationConsts.REQUEST_FORMAT_ERROR);
 				}
+			}
+			else {
+				output.println(AppCommunicationConsts.REQUEST_FORMAT_ERROR);
 			}
 		}
 		catch(Exception e) {

@@ -5,10 +5,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +21,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import org.apache.commons.io.IOUtils;
+
+import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
 
 import oracle.jdbc.pool.OracleDataSource;
@@ -193,6 +200,74 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public byte[] getRpiActionsAfterDate(String rpiId, String date, int numberOfActions) throws SQLException, IOException{
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		if (numberOfActions < 1) {
+			 numberOfActions = 10;
+		}
+		
+		byte[] result = null;
+		
+		try {
+			ps=conn.prepareStatement("select GET_RPI_ACTIONS_AFTER(rd.rpi_id, to_timestamp(?, ?), ?) from RPI_DEVICES rd where rd.rpi_id = ?");  
+			ps.setString(1, date);
+			ps.setString(2, AppCommunicationConsts.DATE_FORMAT_DB);
+			ps.setInt(3, numberOfActions);
+			ps.setString(4, rpiId);
+
+			Clob myClob;
+	        rs = ps.executeQuery();
+	        while (rs.next()) { //the function always returns up to one row
+	        	myClob = rs.getClob(1);
+	        	result = IOUtils.toByteArray(myClob.getCharacterStream(), "UTF-8");
+	        }
+        } 
+        finally {
+        	try {
+        		ps.close();
+	        	rs.close();
+	        	conn.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		return result;
+	}
+	
+	@Override
+	public String getLatestRpiActionTime(String rpiId) throws SQLException, IOException {
+		CallableStatement callStmt = null;
+		Timestamp time = null;
+		try {
+			callStmt = conn.prepareCall("{? = call GET_LATEST_DATE_ON_ACTIONS(?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.TIMESTAMP);
+	        callStmt.setString(2, rpiId);
+	        callStmt.execute();
+	        
+	        time = callStmt.getTimestamp(1);
+        } 
+        finally {
+        	try {
+	        	callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		if (time != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat(AppCommunicationConsts.DATE_FORMAT_APP);
+			return sdf.format(time);
+		}
+		
+		else return "";
 	}
 	
 	public static String DB_PATH = "Database\\";

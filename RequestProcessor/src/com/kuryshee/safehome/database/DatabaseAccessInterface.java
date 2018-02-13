@@ -1,5 +1,6 @@
 package com.kuryshee.safehome.database;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
@@ -52,5 +53,26 @@ public interface DatabaseAccessInterface {
 	 * @return user name or empty string, if the user does not exist.
 	 */
 	public String getUserByToken(String token) throws SQLException;
+	
+	/**
+	 * Returns list of most recent actions on Raspberry Pi registered in database.
+	 * @param rpiId
+	 * @param numberOfActions
+	 * @return byte array of data
+	 * @throws SQLException
+	 * @throws IOException when converting the database output to byte array.
+	 */
+	public String getLatestRpiActionTime(String rpiId) throws SQLException, IOException;
+	
+	/**
+	 * Returns list of most recent actions on Raspberry Pi registered in database after the given date.
+	 * @param rpiId
+	 * @param date
+	 * @param numberOfActions
+	 * @return byte array of data
+	 * @throws SQLException
+	 * @throws IOException when converting the database output to byte array.
+	 */
+	public byte[] getRpiActionsAfterDate(String rpiId, String date, int numberOfActions) throws SQLException, IOException;
 	
 }
