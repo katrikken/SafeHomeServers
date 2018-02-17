@@ -203,45 +203,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	}
 	
 	@Override
-	public byte[] getRpiActionsAfterDate(String rpiId, String date, int numberOfActions) throws SQLException, IOException{
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		
-		if (numberOfActions < 1) {
-			 numberOfActions = 10;
-		}
-		
-		byte[] result = null;
-		
-		try {
-			ps=conn.prepareStatement("select GET_RPI_ACTIONS_AFTER(rd.rpi_id, to_timestamp(?, ?), ?) from RPI_DEVICES rd where rd.rpi_id = ?");  
-			ps.setString(1, date);
-			ps.setString(2, AppCommunicationConsts.DATE_FORMAT_DB);
-			ps.setInt(3, numberOfActions);
-			ps.setString(4, rpiId);
-
-			Clob myClob;
-	        rs = ps.executeQuery();
-	        while (rs.next()) { //the function always returns up to one row
-	        	myClob = rs.getClob(1);
-	        	result = IOUtils.toByteArray(myClob.getCharacterStream(), "UTF-8");
-	        }
-        } 
-        finally {
-        	try {
-        		ps.close();
-	        	rs.close();
-	        	conn.close();
-        	}
-        	catch(Exception e) {
-        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-        	}
-        }
-		
-		return result;
-	}
-	
-	@Override
 	public String getRpiByUser(String user) throws SQLException{
 		CallableStatement callStmt = null;
 		String rpiId = null;
@@ -266,7 +227,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	}
 	
 	@Override
-	public String getLatestRpiActionTime(String rpiId) throws SQLException, IOException {
+	public String getLatestDateOnActions(String rpiId) throws SQLException, IOException {
 		CallableStatement callStmt = null;
 		Timestamp time = null;
 		try {
@@ -353,5 +314,53 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 
 	public Boolean close() {
 		return true;
+	}
+
+	@Override
+	public void addRpiAction(String rpiId, String time, String action, String level) throws SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addRpiPhoto(String rpiId, String time, String name, byte[] photo) throws SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addRpiUserRelation(String rpiId, String user) throws SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteRpiPhoto(String rpiId, String time) throws SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getLatestDateOnPhotos(String rpiId) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public byte[] getPhoto(String rpiId, String time) throws SQLException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public byte[] getPhotoTimesBefore(String rpiId, String time, int numberOfDates) throws SQLException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public byte[] getRpiActionsBefore(String rpiId, String time, int numberOfActions) throws SQLException, IOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

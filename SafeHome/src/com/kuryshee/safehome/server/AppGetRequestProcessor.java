@@ -54,7 +54,7 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		try {
 			rpiId = database.getRpiByUser(user);
 			if(rpiId != null && rpiId.length() > 0) {
-				output.write(database.getRpiActionsAfterDate(rpiId, time, 10));
+				output.write(database.getRpiActionsBefore(rpiId, time, 10));
 			}
 			else {
 				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
@@ -76,7 +76,7 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		try {
 			rpiId = database.getRpiByUser(user);
 			if(rpiId != null && rpiId.length() > 0) {
-				output.println(database.getLatestRpiActionTime(rpiId));
+				output.println(database.getLatestDateOnActions(rpiId));
 			}
 			else {
 				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
