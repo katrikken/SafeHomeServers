@@ -19,7 +19,7 @@ public class AppCommunicationConsts {
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
 	
-	public static final String DATE_FORMAT_DB = "DD-MON-YYYY HH24:MI:SS.FF";
+	public static final String DATE_FORMAT_DB = "DD-MM-YYYY HH24:MI:SS.FF";
 	public static final String DATE_FORMAT_APP = "dd-MM-YYYY HH:mm:ss.FF";
 	
 	public static final String REQUEST_FORMAT_ERROR = "Invalid request";
