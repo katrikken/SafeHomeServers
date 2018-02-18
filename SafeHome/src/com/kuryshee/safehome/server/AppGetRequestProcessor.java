@@ -94,11 +94,91 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	private void getLatestPhotoTime(ServletOutputStream output) {
+		try {
+			rpiId = database.getRpiByUser(user);
+			if(rpiId != null && rpiId.length() > 0) {
+				output.println(database.getLatestDateOnPhotos(rpiId));
+			}
+			else {
+				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
+			}
+		}
+		catch(Exception e) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			
+			try {
+				output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+			}
+			catch(IOException ex) {
+				Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
+		}
+	}
+	
+	private void getPhotoIdentifiers(ServletOutputStream output, String time) {
+		try {
+			rpiId = database.getRpiByUser(user);
+			if(rpiId != null && rpiId.length() > 0) {
+				output.write(database.getPhotoTimesBefore(rpiId, time, 10));
+			}
+			else {
+				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
+			}
+		}
+		catch(Exception e) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			
+			try {
+				output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+			}
+			catch(IOException ex) {
+				Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
+		}
+	}
+	
+	private void getPhoto(ServletOutputStream output, String time) {
+		try {
+			rpiId = database.getRpiByUser(user);
+			if(rpiId != null && rpiId.length() > 0) {
+				output.write(database.getPhoto(rpiId, time));
+			}
+			else {
+				output.println(AppCommunicationConsts.INVALID_USER_ERROR);
+			}
+		}
+		catch(Exception e) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			
+			try {
+				output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+			}
+			catch(IOException ex) {
+				Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
+		}
+	}
+	
+	private void getRpiState(ServletOutputStream output) {
+		//TODO
+	}
+	
+	private void closeConnection() {
+		try {
+			database.closeConnection();
+		}
+		catch(SQLException ex) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		}
+	}
+	
 	@Override
 	public void process(ServletOutputStream output, String... parameters) {
 		try {
 			if(parameters[1] != null) { //expecting query here
-				Map<String, String> params = parseQuery(parameters[1]);
+				Map<String, String> params = parseQuery(parameters[1]); //getting query parameters
+				
 				String action = params.get(AppCommunicationConsts.ACTION);
 				String token = parameters[0];
 				
@@ -108,10 +188,20 @@ public class AppGetRequestProcessor implements RequestProcessor{
 				else if (action != null){
 					if(token != null && getUserByToken(token)) { //if token is passed and user is identified
 						switch(action) {
+							case AppCommunicationConsts.GET_LATEST_ACTION_TIME: getLatestActionTime(output);
+								break; 
 							case AppCommunicationConsts.GET_ACTIONS: getRpiActions(output, params.get(AppCommunicationConsts.TIME));
 								break;
-							case AppCommunicationConsts.GET_LATEST_TIME: getLatestActionTime(output);
-								break; 
+							case AppCommunicationConsts.GET_LATEST_PHOTO_TIME: getLatestPhotoTime(output);
+								break;
+							case AppCommunicationConsts.GET_PHOTO_IDS: getPhotoIdentifiers(output, params.get(AppCommunicationConsts.TIME));
+								break;
+							case AppCommunicationConsts.GET_PHOTO: getPhoto(output, params.get(AppCommunicationConsts.TIME));
+								break;
+							case AppCommunicationConsts.GET_RPI_STATE: getRpiState(output);
+								break;
+							default: output.println(AppCommunicationConsts.REQUEST_FORMAT_ERROR);
+								break;
 						}
 					}
 					else {
@@ -134,6 +224,9 @@ public class AppGetRequestProcessor implements RequestProcessor{
 			catch(IOException ex) {
 				Logger.getLogger(AppPostRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
 			}
+		}
+		finally {
+			closeConnection();
 		}
 	}
 }

@@ -12,6 +12,12 @@ import java.util.Map;
 public interface DatabaseAccessInterface {
 	
 	/**
+	 * Closes the database connection.
+	 * @throws SQLException
+	 */
+	public void closeConnection() throws SQLException;
+	
+	/**
 	 * Registers the action on Raspberry Pi into database.
 	 * @param rpiId
 	 * @param time
@@ -29,7 +35,7 @@ public interface DatabaseAccessInterface {
 	 * @param photo
 	 * @throws SQLException
 	 */
-	public void addRpiPhoto(String rpiId, String time, String name, byte[] photo) throws SQLException;
+	public void addRpiPhoto(String rpiId, String time, String name, byte[] photo) throws SQLException, IOException;
 	
 	/**
 	 * Registers the user for the given Raspberry Pi.

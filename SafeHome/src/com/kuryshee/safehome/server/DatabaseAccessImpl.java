@@ -1,8 +1,12 @@
 package com.kuryshee.safehome.server;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.CallableStatement;
 import java.sql.Clob;
@@ -62,7 +66,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         finally {
         	try {
 	        	callStmt.close();
-	        	conn.close();
         	}
         	catch(Exception e) {
         		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -84,7 +87,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         finally {
         	try {
 	        	if(callStmt != null ) callStmt.close();
-	        	conn.close();
         	}
         	catch(Exception e) {
         		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -105,7 +107,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         finally {
         	try {
 	        	callStmt.close();
-	        	conn.close();
         	}
         	catch(Exception e) {
         		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -128,7 +129,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         finally {
         	try {
 	        	callStmt.close();
-	        	conn.close();
         	}
         	catch(Exception e) {
         		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -188,7 +188,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         finally {
         	try {
 	        	callStmt.close();
-	        	conn.close();
         	}
         	catch(Exception e) {
         		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -318,49 +317,204 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 
 	@Override
 	public void addRpiAction(String rpiId, String time, String action, String level) throws SQLException {
-		// TODO Auto-generated method stub
-		
+		CallableStatement callStmt = null;
+		try {
+			callStmt = conn.prepareCall("{call ADD_RPI_ACTION(?, to_timestamp(?, ?), ?, ?)}");
+	        callStmt.setString(1, rpiId);
+	        callStmt.setString(2, time);
+	        callStmt.setString(3, AppCommunicationConsts.DATE_FORMAT_DB);
+	        callStmt.setString(4, action);
+	        callStmt.setString(5, level);
+	        callStmt.execute();
+	        conn.commit();
+        } 
+        finally {
+        	try {
+	        	callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
 	}
 
 	@Override
-	public void addRpiPhoto(String rpiId, String time, String name, byte[] photo) throws SQLException {
-		// TODO Auto-generated method stub
+	public void addRpiPhoto(String rpiId, String time, String name, byte[] photo) throws SQLException, IOException {
+		CallableStatement callStmt = null;
+		try(ByteArrayInputStream is = new ByteArrayInputStream(photo)) {
+			callStmt = conn.prepareCall("{call ADD_RPI_PHOTO(?, to_timestamp(?, ?), ?, ?)}");
+			callStmt.setString(1, rpiId); 
+			callStmt.setString(2, time);
+			callStmt.setString(3, AppCommunicationConsts.DATE_FORMAT_DB); 
+			callStmt.setString(4, name);
+			callStmt.setBinaryStream(5, is, is.available());  
+			callStmt.execute();
+	        conn.commit();  
+        } 
+        finally {
+        	try {
+        		callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
 		
 	}
 
 	@Override
 	public void addRpiUserRelation(String rpiId, String user) throws SQLException {
-		// TODO Auto-generated method stub
-		
+		CallableStatement callStmt = null;
+		try {
+			callStmt = conn.prepareCall("{call ADD_RPI_USER_RELATION(?, ?)}");
+	        callStmt.setString(1, rpiId);
+	        callStmt.setString(2, user);
+	        
+	        callStmt.execute();
+	        conn.commit();
+        } 
+        finally {
+        	try {
+	        	callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
 	}
 
 	@Override
 	public void deleteRpiPhoto(String rpiId, String time) throws SQLException {
-		// TODO Auto-generated method stub
-		
+		CallableStatement callStmt = null;
+		try {
+			callStmt = conn.prepareCall("{call DELETE_RPI_PHOTO(?, ?)}");
+	        callStmt.setString(1, rpiId);
+	        callStmt.setString(2, time);
+	        
+	        callStmt.execute();
+	        conn.commit();
+        } 
+        finally {
+        	try {
+	        	callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
 	}
 
 	@Override
 	public String getLatestDateOnPhotos(String rpiId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		CallableStatement callStmt = null;
+		Timestamp time = null;
+		try {
+			callStmt = conn.prepareCall("{? = call GET_LATEST_DATE_ON_PHOTOS(?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.TIMESTAMP);
+	        callStmt.setString(2, rpiId);
+	        callStmt.execute();
+	        
+	        time = callStmt.getTimestamp(1);
+        } 
+        finally {
+        	try {
+	        	callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		if (time != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat(AppCommunicationConsts.DATE_FORMAT_APP);
+			return sdf.format(time);
+		}
+		
+		else return "";
 	}
 
 	@Override
 	public byte[] getPhoto(String rpiId, String time) throws SQLException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+		CallableStatement callStmt = null;
+		byte[] result = null;
+		try {
+			callStmt = conn.prepareCall("{? = call GET_PHOTO(?, to_timestamp(?, ?))}");
+			callStmt.registerOutParameter(1, java.sql.Types.BLOB);
+			callStmt.setString(2, rpiId); 
+			callStmt.setString(3, time);
+			callStmt.setString(4, AppCommunicationConsts.DATE_FORMAT_DB);
+			callStmt.execute();
+			
+			result = IOUtils.toByteArray(callStmt.getBlob(1).getBinaryStream());
+        } 
+        finally {
+        	try {
+        		callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		return result;
 	}
 
 	@Override
 	public byte[] getPhotoTimesBefore(String rpiId, String time, int numberOfDates) throws SQLException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+		CallableStatement callStmt = null;
+		byte[] result = null;
+		try {
+			callStmt = conn.prepareCall("{? = call GET_PHOTO_TIMES_BEFORE(?, to_timestamp(?, ?), ?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.CLOB);
+			callStmt.setString(2, rpiId); 
+			callStmt.setString(3, time);
+			callStmt.setString(4, AppCommunicationConsts.DATE_FORMAT_DB);
+			callStmt.setInt(5, numberOfDates); 
+			callStmt.execute();
+			
+			result = IOUtils.toByteArray(callStmt.getClob(1).getCharacterStream(), AppCommunicationConsts.UTF_CHARSET);
+        } 
+        finally {
+        	try {
+        		callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		return result;
 	}
 
 	@Override
 	public byte[] getRpiActionsBefore(String rpiId, String time, int numberOfActions) throws SQLException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+		CallableStatement callStmt = null;
+		byte[] result = null;
+		try {
+			callStmt = conn.prepareCall("{? = call GET_RPI_ACTIONS_BEFORE(?, to_timestamp(?, ?), ?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.CLOB);
+			callStmt.setString(2, rpiId); 
+			callStmt.setString(3, time);
+			callStmt.setString(4, AppCommunicationConsts.DATE_FORMAT_DB);
+			callStmt.setInt(5, numberOfActions); 
+			callStmt.execute();
+			
+			result = IOUtils.toByteArray(callStmt.getClob(1).getCharacterStream(), AppCommunicationConsts.UTF_CHARSET);
+        } 
+        finally {
+        	try {
+        		callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		return result;
+	}
+
+	@Override
+	public void closeConnection() throws SQLException {
+		conn.close();
 	}
 }

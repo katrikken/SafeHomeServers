@@ -60,7 +60,7 @@ public class AndroidAppServlet extends HttpServlet {
 		DataRetriever db = new DataRetriever();
 		String action = db.getTextPart(request, AppCommunicationConsts.ACTION);
 		
-		AppPostRequestProcessor processor;
+		AppPostRequestProcessor processor = null;
 		try {
 			processor = new AppPostRequestProcessor(new InitialContext());
 			
@@ -71,9 +71,22 @@ public class AndroidAppServlet extends HttpServlet {
 					break;
 				case AppCommunicationConsts.VALIDATE: processor.validateToken(response.getOutputStream(), token);
 					break;
+				case AppCommunicationConsts.DELETE_PHOTO: processor.deletePhoto(response.getOutputStream(), token, 
+						db.getTextPart(request, AppCommunicationConsts.TIME));
+					break;
+				case AppCommunicationConsts.CHANGE_STATE: processor.changeState(response.getOutputStream(), token,
+						db.getTextPart(request, AppCommunicationConsts.STATE));
+					break;
+				case AppCommunicationConsts.TAKE_PICTURE: processor.takePicture(response.getOutputStream(), token);
+					break;
+				default: response.getWriter().println(AppCommunicationConsts.REQUEST_FORMAT_ERROR);
+					break;
 			}
 		} catch (NamingException e) {
 			response.getWriter().println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+		}
+		finally {
+			processor.closeConnection();
 		}
 	}
 }

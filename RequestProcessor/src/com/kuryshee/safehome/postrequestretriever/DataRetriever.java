@@ -42,9 +42,30 @@ public class DataRetriever {
 		    return true;
 		}
 		catch(IOException | ServletException e){
-			Logger.getLogger("File retrieving").log(Level.SEVERE, "Exception while retrieving data", e);
+			Logger.getLogger(DataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		} 		
 		return false;
+	}
+	
+	/**
+	 * This method retrieves data of a media file form the POST multi-part request.
+	 * @param request is a POST request.
+	 * @param name is a name of the file part.
+	 * @return byte array
+	 */
+	public byte[] getFilePart(HttpServletRequest request, String name){
+		byte[] result = null;
+		try{
+			Part filePart = request.getPart(name); 
+			InputStream fileContent = filePart.getInputStream();
+			result = new byte[fileContent.available()];	
+		    fileContent.read(result);
+		}
+		catch(IOException | ServletException e){
+			Logger.getLogger(DataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+		} 		
+		
+		return result;
 	}
 	
 	/**
@@ -75,7 +96,7 @@ public class DataRetriever {
 			}
 		}
 		catch(IOException | ServletException e){
-			Logger.getLogger("Text retrieving").log(Level.SEVERE, "Exception while retrieving data", e);
+			Logger.getLogger(DataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		}
 		return "";
 	}
