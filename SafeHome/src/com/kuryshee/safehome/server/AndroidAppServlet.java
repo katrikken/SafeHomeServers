@@ -46,6 +46,7 @@ public class AndroidAppServlet extends HttpServlet {
 			processor.process(response.getOutputStream(), token, query);
 		} catch (NamingException e) {
 			response.getWriter().println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+			Logger.getLogger(AndroidAppServlet.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 

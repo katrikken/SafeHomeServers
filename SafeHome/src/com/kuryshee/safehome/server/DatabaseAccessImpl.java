@@ -1,36 +1,21 @@
 package com.kuryshee.safehome.server;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
 import java.sql.CallableStatement;
-import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
 
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
-
-import oracle.jdbc.pool.OracleDataSource;
 
 
 /**
@@ -42,8 +27,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	
 	DataSource ds;
 	Connection conn;
-	
-	public DatabaseAccessImpl() throws SQLException {}
 	
 	public DatabaseAccessImpl(DataSource ds) throws SQLException {
 
@@ -252,67 +235,6 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		}
 		
 		else return "";
-	}
-	
-	public static String DB_PATH = "Database\\";
-	
-	public static final String LIST = "list";
-
-
-	public Boolean connect(String url, Map<String, String> properties) {
-		return true;
-	}
-
-
-	public Boolean insert(String table, Map<String, String> values) {
-		String id = values.get(SafeHomeServer.RPI_PARAM);
-		String command = values.get(SafeHomeServer.COMMAND_PARAM);
-		String time = values.get(SafeHomeServer.TIME_PARAM);
-		if (id != null){
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(DB_PATH + id, true)));
-					PrintWriter out_p = new PrintWriter(new BufferedWriter(new FileWriter(DB_PATH + id + LIST, true)))){
-				if(command != null){
-					if(time != null){
-						out.print(time.trim() + " ");
-					}
-					
-					if(command.equals(SafeHomeServer.REQ_MOTIONDETECTED)){
-					    out.println("Motion was detected.");
-					    return true;
-					}
-					else if (command.equals(SafeHomeServer.REQ_PHOTOTAKEN)){
-						out.println("Photo was made.");
-						return true;
-					}
-					else if (command.equals(SafeHomeServer.REQ_RFIDSWITCH)){
-						String user = values.get(SafeHomeServer.RFID_PARAM);
-						if(user != null){
-							out.print(user + " used the token. ");
-						}
-						out.println("State was switched.");
-						return true;
-					}
-					else if (command.equals(SafeHomeServer.UPLOAD_PHOTO)){
-						String path = values.get(SafeHomeServer.PHOTO_PARAM);
-						if(path != null){
-							out.print(path + " ");
-							out_p.println(path);
-						}
-						out.println("Photo was saved.");
-						return true;
-					}
-				}
-			} catch (IOException e) {
-				Logger.getLogger("Mock Database").severe(e.getMessage());	
-			}
-		}
-		return false;
-	}
-	
-
-
-	public Boolean close() {
-		return true;
 	}
 
 	@Override
