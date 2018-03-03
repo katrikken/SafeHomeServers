@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.kuryshee.safehome.postrequestretriever.DataRetriever;
+import com.kuryshee.safehome.requestdataretriever.PostDataRetriever;
 
 
 /**
@@ -118,7 +118,7 @@ public class RpiServlet extends HttpServlet {
 		
 		if(path.startsWith(SERVLET_PATH + COMMAND_READTOKEN, 0)){ //The servlet gets POST request with the token data.
 			try{
-				DataRetriever dr = new DataRetriever();			
+				PostDataRetriever dr = new PostDataRetriever();			
 				String token = dr.getTextPart(request, CARD_PARAM); //Fetch token data from the request.
 				
 				if(!token.isEmpty()){

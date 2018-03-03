@@ -1,4 +1,4 @@
-package com.kuryshee.safehome.postrequestretriever;
+package com.kuryshee.safehome.requestdataretriever;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,7 +18,7 @@ import javax.servlet.http.Part;
  * This class implements retrieval of data from POST multi-part requests. 
  * @author Ekaterina Kurysheva
  */
-public class DataRetriever {
+public class PostDataRetriever {
 	
 	private static final String DEFAULT_ENCODING = "UTF-8";
 	
@@ -42,7 +42,7 @@ public class DataRetriever {
 		    return true;
 		}
 		catch(IOException | ServletException e){
-			Logger.getLogger(DataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			Logger.getLogger(PostDataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		} 		
 		return false;
 	}
@@ -62,7 +62,7 @@ public class DataRetriever {
 		    fileContent.read(result);
 		}
 		catch(IOException | ServletException e){
-			Logger.getLogger(DataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			Logger.getLogger(PostDataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		} 		
 		
 		return result;
@@ -96,7 +96,7 @@ public class DataRetriever {
 			}
 		}
 		catch(IOException | ServletException e){
-			Logger.getLogger(DataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			Logger.getLogger(PostDataRetriever.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		}
 		return "";
 	}

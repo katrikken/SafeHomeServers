@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.kuryshee.safehome.httprequestsender.AnswerConstants;
-import com.kuryshee.safehome.postrequestretriever.DataRetriever;
+import com.kuryshee.safehome.requestdataretriever.PostDataRetriever;
 import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
@@ -59,7 +59,7 @@ public class RpiCommunicationServlet extends HttpServlet{
 		
 		String rpiId = request.getHeader(RpiCommunicationConsts.RPI_ID);
 		
-		DataRetriever db = new DataRetriever();
+		PostDataRetriever db = new PostDataRetriever();
 		String action = db.getTextPart(request, RpiCommunicationConsts.ACTION);
 		
 		RpiHttpRequestProcessor processor = null;

@@ -9,5 +9,8 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Katrikken.Lenovo-PC/Documents/Oracle/java-json.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Katrikken.Lenovo-PC/Documents/Oracle/org.apache.commons.io.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Katrikken.Lenovo-PC/Documents/Oracle/javax.json-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,8 +1,8 @@
 package com.kuryshee.safehome.httprequestsender;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -23,19 +23,23 @@ public class GetRequestSender {
     private final int TEN_SEC = 10000;
     private String token = null;
     
+    /**
+     * Sets identity token to request headers.
+     * @param token
+     */
     public void setToken(String token) {
     	this.token = token;
     }
     
     /**
-     * This method connects to the server and tries to get the answer.
+     * Connects to the server and tries to get the answer.
      * @param query is a full URL address to set the connection.
-     * @param charset defines the encoding for the request.
-     * @return string with answer. 
-     * In case no answer arrived, returns {@link AnswerConstants#NO_ANSWER}.
+     * @param charset defines the encoding for the request, default is UTF-8
+     * @return InputStream with answer.
      * In case error occurred, returns {@link AnswerConstants#ERROR_ANSWER}.
+     * In case no answer arrived, returns null.
      */
-    public String connect(String query, String charset){
+    public InputStream connect(String query, String charset){
         if(charset == null) charset = "UTF-8";
         
         try{
@@ -50,43 +54,30 @@ public class GetRequestSender {
 			}
             connection.setConnectTimeout(TEN_SEC); 
             connection.connect();
-            try(BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream(), charset))){     
-                for (int i = 0; i < 10; i++){  
-                    if(reader != null){
-                        String answer = reader.readLine();
-                        if(answer != null)
-                            return answer;
-                    }
-                    else{            
-                        try{ Thread.sleep(100); }
-                        catch(InterruptedException e){ //log 
-                            return AnswerConstants.ERROR_ANSWER;
-                        }               
-                    }
-                }
-
-                return AnswerConstants.NO_ANSWER;                      
-            }
-            catch(IOException e){
-                Logger.getLogger("Sending GET request").log(Level.SEVERE, e.getMessage());    
-                return AnswerConstants.ERROR_ANSWER;
-            }
-            finally{
-                if (connection != null){
-                    connection.disconnect();
-                }
-            }
+            
+            return connection.getInputStream();
         }
         catch(IOException e){
-            Logger.getLogger("Sending GET request").log(Level.SEVERE, e.getMessage());    
-            return AnswerConstants.ERROR_ANSWER;
+            Logger.getLogger(GetRequestSender.class.getName()).log(Level.SEVERE, e.getMessage(), e); 
+            try {
+    			return new ByteArrayInputStream(AnswerConstants.ERROR_ANSWER.getBytes(charset));
+    		} catch (UnsupportedEncodingException ex) {
+    			Logger.getLogger(GetRequestSender.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);    
+    		}
         }
+        finally{
+            if (connection != null){
+                connection.disconnect();
+            }
+            
+        }
+        
+        return null;
     }   
    
     
     /**
-     * This method encodes the query to the URL format.
+     * Encodes the query to the URL format.
      * @param command is a start of the query address
      * @param attributes is a map of parameter names and values of the query
      * @param charset is an encoding setting for the query
@@ -112,7 +103,7 @@ public class GetRequestSender {
             return query.toString();
         }
         catch(UnsupportedEncodingException e){
-            Logger.getLogger("Query encoding").log(Level.SEVERE, "--Main thread -- could not form the query string");          
+            Logger.getLogger(GetRequestSender.class.getName()).log(Level.SEVERE, e.getMessage(), e);          
         }
         return "";
     }

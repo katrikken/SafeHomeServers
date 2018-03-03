@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
-import com.kuryshee.safehome.postrequestretriever.DataRetriever;
+import com.kuryshee.safehome.requestdataretriever.PostDataRetriever;
 
 /**
  * Servlet implementation class AndroidAppServlet
@@ -58,7 +58,7 @@ public class AndroidAppServlet extends HttpServlet {
 		
 		String token = request.getHeader(AppCommunicationConsts.TOKEN);
 		
-		DataRetriever db = new DataRetriever();
+		PostDataRetriever db = new PostDataRetriever();
 		String action = db.getTextPart(request, AppCommunicationConsts.ACTION);
 		
 		AppPostRequestProcessor processor = null;
