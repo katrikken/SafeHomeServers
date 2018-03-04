@@ -35,16 +35,16 @@ public class AndroidAppServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Logger.getLogger(AndroidAppServlet.class.getName()).log(Level.INFO, "--Android GET request registered");
-		
 		String token = request.getHeader(AppCommunicationConsts.TOKEN);
 		String query = request.getQueryString();
+		
+		Logger.getLogger(AndroidAppServlet.class.getName()).log(Level.INFO, "--Android GET request registered: " + query);
 		
 		AppGetRequestProcessor processor;
 		try {
 			processor = new AppGetRequestProcessor(new InitialContext());
 			processor.process(response.getOutputStream(), token, query);
-		} catch (NamingException e) {
+		} catch (Exception e) {
 			response.getWriter().println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
 			Logger.getLogger(AndroidAppServlet.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		}

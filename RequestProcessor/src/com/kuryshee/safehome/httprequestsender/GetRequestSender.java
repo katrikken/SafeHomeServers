@@ -1,5 +1,6 @@
 package com.kuryshee.safehome.httprequestsender;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +12,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.IOUtils;
+
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
+import com.kuryshee.safehome.requestdataretriever.GetDataRetriever;
 
 /**
  * This class implements the set of functions for sending GET requests.
@@ -35,11 +39,11 @@ public class GetRequestSender {
      * Connects to the server and tries to get the answer.
      * @param query is a full URL address to set the connection.
      * @param charset defines the encoding for the request, default is UTF-8
-     * @return InputStream with answer.
+     * @return byte array with answer.
      * In case error occurred, returns {@link AnswerConstants#ERROR_ANSWER}.
      * In case no answer arrived, returns null.
      */
-    public InputStream connect(String query, String charset){
+    public byte[] connect(String query, String charset){
         if(charset == null) charset = "UTF-8";
         
         try{
@@ -55,12 +59,20 @@ public class GetRequestSender {
             connection.setConnectTimeout(TEN_SEC); 
             connection.connect();
             
-            return connection.getInputStream();
+            byte[] bytes = null;
+            
+            try(InputStream in = new BufferedInputStream(connection.getInputStream())){
+            	bytes = IOUtils.toByteArray(in); 
+            }
+            catch (IOException e) {
+    			Logger.getLogger(GetRequestSender.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+    		}
+            return bytes;
         }
         catch(IOException e){
             Logger.getLogger(GetRequestSender.class.getName()).log(Level.SEVERE, e.getMessage(), e); 
             try {
-    			return new ByteArrayInputStream(AnswerConstants.ERROR_ANSWER.getBytes(charset));
+    			return AnswerConstants.ERROR_ANSWER.getBytes(charset);
     		} catch (UnsupportedEncodingException ex) {
     			Logger.getLogger(GetRequestSender.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);    
     		}
