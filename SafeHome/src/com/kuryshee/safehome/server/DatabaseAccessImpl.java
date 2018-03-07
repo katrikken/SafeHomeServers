@@ -329,14 +329,14 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	@Override
 	public String getLatestDateOnPhotos(String rpiId) throws SQLException {
 		CallableStatement callStmt = null;
-		Timestamp time = null;
+		String time = null;
 		try {
 			callStmt = conn.prepareCall("{? = call GET_LATEST_DATE_ON_PHOTOS(?)}");
-			callStmt.registerOutParameter(1, java.sql.Types.TIMESTAMP);
+			callStmt.registerOutParameter(1, java.sql.Types.VARCHAR);
 	        callStmt.setString(2, rpiId);
 	        callStmt.execute();
 	        
-	        time = callStmt.getTimestamp(1);
+	        time = callStmt.getString(1);
         } 
         finally {
         	try {
@@ -347,12 +347,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         	}
         }
 		
-		if (time != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat(AppCommunicationConsts.DATE_FORMAT_APP);
-			return sdf.format(time);
-		}
-		
-		else return "";
+		return time;
 	}
 
 	@Override
