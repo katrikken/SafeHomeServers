@@ -25,6 +25,12 @@
 	 						<td><h:outputText value="#{i.name}"/></td>
 	 						<td>
 	 							<h:commandButton 
+	 								value="Change password" 
+	 								action="#{userPage.changePassword(i)}"
+	 								class="delete-button"/>
+	 						</td>
+	 						<td>
+	 							<h:commandButton 
 	 								value="Delete" 
 	 								action="#{userPage.deleteUser(i)}"
 	 								onclick="return confirm('Are you sure?')"

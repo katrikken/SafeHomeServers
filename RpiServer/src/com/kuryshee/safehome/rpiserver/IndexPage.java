@@ -112,7 +112,7 @@ public class IndexPage implements Serializable{
 			FacesContext.getCurrentInstance().addMessage(
 					errorMsgComponent.getClientId(), 
 					new FacesMessage("Incorrect login and password!"));
-			return "index";
+			return PageNames.INDEX;
 		}	    
 	}
 	
@@ -127,12 +127,12 @@ public class IndexPage implements Serializable{
 			String conf = br.readLine();
 			String params[] = conf.split(" ");		
 			if (params[0].equals(userName) && params[1].equals(password)){
-				Logger.getLogger("Page Service").log(Level.INFO, "Login and password are correct");
+				Logger.getLogger(IndexPage.class.getName()).log(Level.INFO, "Login and password are correct");
 				return true;			
 			}
 		
 		} catch (IOException e) {
-			Logger.getLogger("Page Service").log(Level.SEVERE, e.getMessage());
+			Logger.getLogger(IndexPage.class.getName()).log(Level.SEVERE, e.getMessage());
 		}
 		return false;
 	}

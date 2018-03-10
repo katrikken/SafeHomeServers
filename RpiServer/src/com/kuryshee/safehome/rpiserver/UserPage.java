@@ -1,10 +1,6 @@
 package com.kuryshee.safehome.rpiserver;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,18 +10,23 @@ import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+
+import com.kuryshee.safehome.httprequestsender.AnswerConstants;
+import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
  * This class implements managed bean for the page with user management logic.
  * @author Ekaterina Kurysheva
  */
 @ManagedBean(name="userPage")
-@ViewScoped
+@SessionScoped
 public class UserPage implements Serializable {
+	
+	private UserConfigManager reader = null;
 	
 	/**
 	 * The property is bounded to the index page and contains user name entered during logging in.
@@ -33,7 +34,17 @@ public class UserPage implements Serializable {
 	@ManagedProperty("#{indexPage.userName}")
 	private String userName;
 	
-	private List<UserBean> userBeans = new ArrayList<>();
+	private UserBean changePswdBean = null;
+	
+	public UserBean getChangePswdBean() {
+		return changePswdBean;
+	}
+
+	public void setChangePswdBean(UserBean changePswdBean) {
+		this.changePswdBean = changePswdBean;
+	}
+
+	private List<UserBean> userBeans;
 	
 	/**
 	 * Getter for the property {@link #userName}
@@ -86,23 +97,13 @@ public class UserPage implements Serializable {
 	private void setUserBeans(){
 		//List of users should be updated upon new page request.
 		userBeans = new ArrayList<>();
-		
-		try(BufferedReader br = new BufferedReader(new FileReader(RpiServlet.USERCONFIG))){
-			String conf;
-			
-			while( (conf = br.readLine()) != null){
-				if(!conf.trim().isEmpty()){
-					String params[] = conf.substring(RpiServlet.KEY.length()).split("-");
-					
-					UserBean bean = new UserBean();
-					bean.setToken(params[0]);
-					bean.setName(params[1]);
-					userBeans.add(bean);
-				}
-			}		
-		
+		try {
+			if(reader == null) {
+				reader = new UserConfigManager(new File(RpiServlet.USERCONFIG));
+			}
+			userBeans.addAll(reader.readUsersToUserBeans());
 		} catch (Exception e) {
-			Logger.getLogger("userPage").log(Level.SEVERE, "Config file exception", e);
+			Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 	
@@ -113,26 +114,35 @@ public class UserPage implements Serializable {
 	 */
 	public String deleteUser(UserBean user){
 		
-		Logger.getLogger("userPage").log(Level.INFO, "Delete user command on user " + user.getName());
+		Logger.getLogger(UserPage.class.getName()).log(Level.INFO, "Delete user command on user " + user.getName());
 		
-		File users = new File(RpiServlet.USERCONFIG);
-		try(FileOutputStream fstream = new FileOutputStream(users, false)){
+		try{
 			userBeans.remove(user);
 			
-			fstream.write('\n');
-			
-			for(UserBean bean : userBeans){
-				String line = RpiServlet.KEY + bean.getToken() + "-" + bean.getName() + '\n';
-				byte[] bytes = line.getBytes();
-				fstream.write(bytes);
+			if(reader == null) {
+				reader = new UserConfigManager(new File(RpiServlet.USERCONFIG));
+			}		
+			reader.writeBeansToJson(userBeans);
+			if(!RpiServlet.tasks.element().equals(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
+				RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_UPDATEUSERS);
 			}
-			RpiServlet.tasks.add(RpiServlet.COMMAND_UPDATEUSERS);
 			
-		} catch (IOException e) {
-			Logger.getLogger("userPage").log(Level.SEVERE, e.getMessage());
+		} catch (Exception e) {
+			Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 		} 	
 
-		return "userpage";
+		return PageNames.USERPAGE;
+	}
+	
+	/**
+	 * Redirects to the page where user can change password.
+	 * @param user
+	 * @return page name
+	 */
+	public String changePassword(UserBean user) {
+		changePswdBean = user;
+		
+		return PageNames.CHANGEPSWD;
 	}
 	
 	/**
@@ -146,15 +156,15 @@ public class UserPage implements Serializable {
 			ServletContext servletContext = 
 				(ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
 			
-			String key = servletContext.getAttribute(RpiServlet.CARD_PARAM).toString();
+			String key = servletContext.getAttribute(RpiCommunicationConsts.CARD_PARAM).toString();
 
 			//If the tag is not present
-			if(!key.equals(RpiServlet.ERROR_ANSWER)){
-				return "newuser";			
+			if(!key.equals(AnswerConstants.ERROR_ANSWER)){
+				return PageNames.NEWUSER;			
 			}	
 		}
 		catch(Exception ex){
-			Logger.getLogger("UserPage").log(Level.SEVERE, ex.getMessage());
+			Logger.getLogger(UserPage.class.getName()).log(Level.SEVERE, ex.getMessage());
 		}		
 		
 		//Show the message
@@ -162,8 +172,8 @@ public class UserPage implements Serializable {
 				errorMsgComponent.getClientId(), 
 				new FacesMessage("Put the new token to the reader and press the button again!"));
 		//Check whether the task has been set
-		if(!RpiServlet.tasks.contains(RpiServlet.COMMAND_READTOKEN)){
-			RpiServlet.tasks.add(RpiServlet.COMMAND_READTOKEN);
+		if(!RpiServlet.tasks.contains(RpiCommunicationConsts.COMMAND_READTOKEN)){
+			RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_READTOKEN);
 		}
 		
 		return null;

@@ -10,6 +10,16 @@ public class UserBean {
 	
 	private String token;
 	
+	private String password;
+	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	/**
 	 * Getter for the property name of a user with registered token.
 	 * @return name of a user.

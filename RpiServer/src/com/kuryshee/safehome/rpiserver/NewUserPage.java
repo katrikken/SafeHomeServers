@@ -1,10 +1,8 @@
 package com.kuryshee.safehome.rpiserver;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,10 +13,9 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextAttributeEvent;
-import javax.servlet.ServletContextAttributeListener;
-import javax.servlet.annotation.WebListener;
 
+import com.kuryshee.safehome.httprequestsender.AnswerConstants;
+import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 import com.kuryshee.safehome.sanitizer.Sanitizer;
 
 /**
@@ -33,6 +30,19 @@ public class NewUserPage implements Serializable{
 
 	private String token;
 	
+	private String password;
+	
+	public String getPassword() {
+		if(password == null) {
+			return "";
+		}
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = Sanitizer.sanitize(password);
+	}
+
 	/**
 	 * The property is bounded to the index page and contains user name entered during logging in.
 	 */
@@ -122,42 +132,62 @@ public class NewUserPage implements Serializable{
 			ServletContext servletContext = 
 				(ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
 			
-			String key = servletContext.getAttribute(RpiServlet.CARD_PARAM).toString();
-			if(!key.equals(RpiServlet.ERROR_ANSWER)){
+			String key = servletContext.getAttribute(RpiCommunicationConsts.CARD_PARAM).toString();
+			if(!key.equals(AnswerConstants.ERROR_ANSWER)){
 				setToken(key);
 			}
-			servletContext.removeAttribute(RpiServlet.CARD_PARAM);
+			servletContext.removeAttribute(RpiCommunicationConsts.CARD_PARAM);
 		}
 		catch(Exception ex){
-			Logger.getLogger("NewUserPage").log(Level.SEVERE, ex.getMessage());
+			Logger.getLogger(NewUserPage.class.getName()).log(Level.SEVERE, ex.getMessage());
 		}
 		
-		if(!getToken().isEmpty() && !getName().isEmpty()){
-			Logger.getLogger("NewUserPage").log(Level.INFO, "User can be stored.");
+		if(!getToken().isEmpty() && !getName().isEmpty() && !getPassword().isEmpty()){
+			Logger.getLogger(NewUserPage.class.getName()).log(Level.INFO, "User can be stored.");
 			
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(
-					new FileWriter(RpiServlet.USERCONFIG, true)))){
+			try{
+				UserConfigManager reader = new UserConfigManager(new File(RpiServlet.USERCONFIG));
+				List<UserBean> beans = reader.readUsersToUserBeans();
 				
-				out.println(RpiServlet.KEY + getToken() + "-" + getName());
+				for(UserBean bean: beans) {
+					if(bean.getToken().equals(token)) {
+						bean.setName(name);
+						
+						saveChanges(reader, beans);
+						return PageNames.USERPAGE;	
+					}
+				}
 				
-				RpiServlet.tasks.add(RpiServlet.COMMAND_UPDATEUSERS);
+				UserBean bean = new UserBean();
+				bean.setName(name);
+				bean.setToken(token);
+				bean.setPassword(password);
 				
-				return "userpage";		
-			} catch (IOException e) {
-				Logger.getLogger("NewUserPage").log(Level.SEVERE, e.getMessage());
+				beans.add(bean);
+				
+				saveChanges(reader, beans);
+				return PageNames.USERPAGE;	
+			
+			} catch (Exception e) {
+				Logger.getLogger(NewUserPage.class.getName()).log(Level.SEVERE, e.getMessage());
 			} 	
 		}
 		else{
 			FacesContext.getCurrentInstance().addMessage(
 					errorMsgComponent.getClientId(), 
 					new FacesMessage("Error! Check validity of the name and ensure the token has been read."));
-			if(!RpiServlet.tasks.contains(RpiServlet.COMMAND_READTOKEN)){
-				RpiServlet.tasks.add(RpiServlet.COMMAND_READTOKEN);
+			if(!RpiServlet.tasks.contains(RpiCommunicationConsts.COMMAND_READTOKEN)){
+				RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_READTOKEN);
 			}
 		}
 		
-		return "newuser";
+		return PageNames.NEWUSER;
 	}
 	
-	
+	private void saveChanges(UserConfigManager reader, List<UserBean> beans){
+		reader.writeBeansToJson(beans);
+		if(!RpiServlet.tasks.element().equals(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
+			RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_UPDATEUSERS);
+		}
+	}
 }

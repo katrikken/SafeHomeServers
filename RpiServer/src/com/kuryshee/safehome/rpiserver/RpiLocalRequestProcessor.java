@@ -1,11 +1,14 @@
 package com.kuryshee.safehome.rpiserver;
 
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletOutputStream;
 
+import com.kuryshee.safehome.httprequestsender.AnswerConstants;
 import com.kuryshee.safehome.requestprocessorinterface.RequestProcessor;
+import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
  * This class implements {@link RequestProcessor} interface according to this servlet REST API.
@@ -13,7 +16,7 @@ import com.kuryshee.safehome.requestprocessorinterface.RequestProcessor;
  */
 public class RpiLocalRequestProcessor implements RequestProcessor{
 
-	private static Logger log = Logger.getLogger("Local Request Processor");
+	private static Logger log = Logger.getLogger(RpiLocalRequestProcessor.class.getName());
 
 	/**
 	 * This method is a part of the interface implementation.
@@ -21,17 +24,21 @@ public class RpiLocalRequestProcessor implements RequestProcessor{
 	 */
 	@Override
 	public void process(ServletOutputStream output, String... parameters) {
-		String command = parameters[0];
 		try {
-			if (command.equals(RpiServlet.REQ_CHECKTASK)){
-				output.println(checktask());
+			if(parameters != null && parameters.length  > 0) {
+				Map<String, String> params = parseQuery(parameters[0]);
+				String action = params.get(RpiCommunicationConsts.ACTION);
+				switch(action) {
+					case RpiCommunicationConsts.REQ_CHECKTASK: 
+						output.println(checktask());
+						break;
+					default: output.println(AnswerConstants.ERROR_ANSWER);
+						break;
+				}
 			}	
-			else{
-				output.println(RpiServlet.NO_ANSWER);
-			}
 		}
 		catch(Exception e) {
-			log.severe(e.getMessage());
+			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 	
@@ -46,6 +53,6 @@ public class RpiLocalRequestProcessor implements RequestProcessor{
 			return RpiServlet.tasks.poll();
 		}		
 		
-		return RpiServlet.NO_ANSWER;
+		return AnswerConstants.NO_ANSWER;
 	}
 }
