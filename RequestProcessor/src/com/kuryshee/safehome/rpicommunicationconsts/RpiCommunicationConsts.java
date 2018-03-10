@@ -6,6 +6,9 @@ public class RpiCommunicationConsts {
 	public static final String REGISTER_ACTION = "registeraction";
 	public static final String SAVE_PHOTO = "savephoto";
 	public static final String POST_STATE = "poststate";
+	/**
+     * The constant for the Raspberry Pi to ask for new tasks from server.
+     */
 	public static final String GET_TASK = "gettask";
 	
 	public static final String TURN_ON = "turnon";
@@ -21,6 +24,9 @@ public class RpiCommunicationConsts {
 	public static final String PHOTO_NAME = "name";
 	public static final String PHOTO = "photo";
 	public static final String STATE = "state";
+	/**
+     * The POST request parameter for passing the id data.
+     */
 	public static final String RPI_ID = "id";
 	
 	/**

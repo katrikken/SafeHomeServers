@@ -13,6 +13,10 @@ public class AppCommunicationConsts {
 	public static final String STATE = "state";
 	public static final String ON = "on";
 	public static final String OFF = "off";
+	public static final String DANGEROUS = "D";
+	public static final String NORMAL = "N";
+	public static final String MOTION = "Motion detected!";
+	public static final String PHOTO = "Photo was taken";
 	
 	public static final String GET_TOKEN = "gettoken";
 	public static final String VALIDATE = "validatetoken";

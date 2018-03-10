@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.requestdataretriever.GetDataRetriever;
+import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
  * This class implements the set of functions for sending GET requests.
@@ -26,6 +27,7 @@ public class GetRequestSender {
     private HttpURLConnection connection;
     private final int TEN_SEC = 10000;
     private String token = null;
+    private String rpiId = null;
     
     /**
      * Sets identity token to request headers.
@@ -33,6 +35,10 @@ public class GetRequestSender {
      */
     public void setToken(String token) {
     	this.token = token;
+    }
+    
+    public void setRpiId(String id) {
+    	this.rpiId = id;
     }
     
     /**
@@ -55,6 +61,9 @@ public class GetRequestSender {
             connection.setRequestProperty("Accept-Charset", charset);   
 			if(this.token != null) {
 				connection.setRequestProperty(AppCommunicationConsts.TOKEN, token);
+			}
+			if(this.rpiId != null) {
+				connection.setRequestProperty(RpiCommunicationConsts.RPI_ID, rpiId);
 			}
             connection.setConnectTimeout(TEN_SEC); 
             connection.connect();
