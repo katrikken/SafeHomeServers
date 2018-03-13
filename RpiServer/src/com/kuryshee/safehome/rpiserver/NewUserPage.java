@@ -146,7 +146,7 @@ public class NewUserPage implements Serializable{
 			Logger.getLogger(NewUserPage.class.getName()).log(Level.INFO, "User can be stored.");
 			
 			try{
-				UserConfigManager reader = new UserConfigManager(new File(RpiServlet.USERCONFIG));
+				UserConfigManager reader = new UserConfigManager(new File(RpiServlet.readConfig()));
 				List<UserBean> beans = reader.readUsersToUserBeans();
 				
 				for(UserBean bean: beans) {
@@ -186,7 +186,7 @@ public class NewUserPage implements Serializable{
 	
 	private void saveChanges(UserConfigManager reader, List<UserBean> beans){
 		reader.writeBeansToJson(beans);
-		if(!RpiServlet.tasks.element().equals(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
+		if(!RpiServlet.tasks.contains(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
 			RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_UPDATEUSERS);
 		}
 	}

@@ -99,7 +99,7 @@ public class UserPage implements Serializable {
 		userBeans = new ArrayList<>();
 		try {
 			if(reader == null) {
-				reader = new UserConfigManager(new File(RpiServlet.USERCONFIG));
+				reader = new UserConfigManager(new File(RpiServlet.readConfig()));
 			}
 			userBeans.addAll(reader.readUsersToUserBeans());
 		} catch (Exception e) {
@@ -120,10 +120,10 @@ public class UserPage implements Serializable {
 			userBeans.remove(user);
 			
 			if(reader == null) {
-				reader = new UserConfigManager(new File(RpiServlet.USERCONFIG));
+				reader = new UserConfigManager(new File(RpiServlet.readConfig()));
 			}		
 			reader.writeBeansToJson(userBeans);
-			if(!RpiServlet.tasks.element().equals(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
+			if(!RpiServlet.tasks.contains(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
 				RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_UPDATEUSERS);
 			}
 			

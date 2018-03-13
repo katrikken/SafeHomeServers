@@ -1,10 +1,16 @@
 package com.kuryshee.safehome.rpiserver;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -30,17 +36,9 @@ public class RpiServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * The constant path of this servlet.
+	 * The attribute contains the path to the file with predefined log in parameters for the administrator user.
 	 */
-	private static final String SERVLET_PATH = "/RpiServer/RpiServlet";
-	
-	
-	/**
-	 * The constant contains path to the file with registered tokens for a card reader.
-	 */
-	//public static final String USERCONFIG = "/home/pi/NetBeansProjects/com.kuryshee.safehome.rpi/dist/keys.txt";
-	public static final String USERCONFIG = "keys.txt";
-	
+    public static final String CONFIG = "/resources/config/config.json";
 	
 	/**
 	 * The queue for the tasks to the Raspberry Pi logic part application.
@@ -48,8 +46,7 @@ public class RpiServlet extends HttpServlet {
 	 */
 	public static ConcurrentLinkedQueue<String> tasks = new ConcurrentLinkedQueue<>();
 	
-	private static Logger log = Logger.getLogger(RpiServlet.class.getName());
-       
+	private static Logger log = Logger.getLogger(RpiServlet.class.getName());   
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -96,5 +93,19 @@ public class RpiServlet extends HttpServlet {
 		else{
 			log.log(Level.WARNING, "--Invalid POST request");
 		}		 
+	}
+	
+	public static String readConfig(){	
+		ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+		
+		try(InputStream is = ec.getResourceAsStream(RpiServlet.CONFIG); JsonReader reader = Json.createReader(is)){
+			JsonObject conf = reader.readObject();
+			String path = conf.getString("keys");	
+			return path;
+		
+		} catch (IOException e) {
+			Logger.getLogger(IndexPage.class.getName()).log(Level.SEVERE, e.getMessage());
+		}
+		return "";
 	}
 }

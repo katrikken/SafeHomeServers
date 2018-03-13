@@ -71,6 +71,8 @@ public class RpiCommunicationServlet extends HttpServlet{
 						db.getTextPart(request, RpiCommunicationConsts.USER_LOGIN), 
 						db.getTextPart(request, RpiCommunicationConsts.USER_PASSWORD));
 					break;
+				case RpiCommunicationConsts.DELETE_USER: //TODO
+					break;
 				case RpiCommunicationConsts.REGISTER_ACTION: processor.registerAction(response.getOutputStream(), rpiId, 
 						db.getTextPart(request, RpiCommunicationConsts.RPI_ACTION_INFO), 
 						db.getTextPart(request, RpiCommunicationConsts.TIME),

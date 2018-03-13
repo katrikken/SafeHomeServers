@@ -29,7 +29,7 @@ public class RpiLocalRequestProcessor implements RequestProcessor{
 				Map<String, String> params = parseQuery(parameters[0]);
 				String action = params.get(RpiCommunicationConsts.ACTION);
 				switch(action) {
-					case RpiCommunicationConsts.REQ_CHECKTASK: 
+					case RpiCommunicationConsts.GET_TASK: 
 						output.println(checktask());
 						break;
 					default: output.println(AnswerConstants.ERROR_ANSWER);

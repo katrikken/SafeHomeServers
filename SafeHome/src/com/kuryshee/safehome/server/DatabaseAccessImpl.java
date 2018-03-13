@@ -289,8 +289,8 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		CallableStatement callStmt = null;
 		try {
 			callStmt = conn.prepareCall("{call ADD_RPI_USER_RELATION(?, ?)}");
-	        callStmt.setString(1, rpiId);
-	        callStmt.setString(2, user);
+	        callStmt.setString(1, user);
+	        callStmt.setString(2, rpiId);
 	        
 	        callStmt.execute();
 	        conn.commit();

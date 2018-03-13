@@ -59,6 +59,7 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 	public void registerUser(ServletOutputStream output, String rpiId, String login, String password) {
 		try {
 			if ( checkRpi(rpiId)) { //Rpi is identified
+				Logger.getLogger(RpiHttpRequestProcessor.class.getName()).log(Level.INFO, rpiId);
 				database.addUserCredentials(login, password);
 				database.addRpiUserRelation(rpiId, login);
 				

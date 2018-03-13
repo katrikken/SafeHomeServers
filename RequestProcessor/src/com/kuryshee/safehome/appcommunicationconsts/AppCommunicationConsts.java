@@ -16,7 +16,9 @@ public class AppCommunicationConsts {
 	public static final String DANGEROUS = "D";
 	public static final String NORMAL = "N";
 	public static final String MOTION = "Motion detected!";
-	public static final String PHOTO = "Photo was taken";
+	public static final String PHOTO = "Photo was taken.";
+	public static final String RFIDSWITCHOFF = " has turned the alarm off.";
+	public static final String RFIDSWITCHON = " has turned the alarm on";
 	
 	public static final String GET_TOKEN = "gettoken";
 	public static final String VALIDATE = "validatetoken";

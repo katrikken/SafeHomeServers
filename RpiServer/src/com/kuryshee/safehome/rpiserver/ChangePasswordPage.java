@@ -1,6 +1,8 @@
 package com.kuryshee.safehome.rpiserver;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
@@ -9,6 +11,11 @@ import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
@@ -70,7 +77,7 @@ public class ChangePasswordPage implements Serializable{
 	 */
 	public String saveNewPassword() {
 		try{
-			UserConfigManager reader = new UserConfigManager(new File(RpiServlet.USERCONFIG));
+			UserConfigManager reader = new UserConfigManager(new File(RpiServlet.readConfig()));
 			List<UserBean> beans = reader.readUsersToUserBeans();
 			
 			for(UserBean bean: beans) {
@@ -78,7 +85,7 @@ public class ChangePasswordPage implements Serializable{
 					bean.setPassword(password);
 					
 					reader.writeBeansToJson(beans);
-					if(!RpiServlet.tasks.element().equals(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
+					if(!RpiServlet.tasks.contains(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
 						RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_UPDATEUSERS);
 					}
 				}

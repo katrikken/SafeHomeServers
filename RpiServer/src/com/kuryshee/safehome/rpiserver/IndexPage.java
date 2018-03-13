@@ -2,6 +2,7 @@ package com.kuryshee.safehome.rpiserver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.logging.Level;
@@ -13,7 +14,11 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
+import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 import com.kuryshee.safehome.sanitizer.Sanitizer;
 
 /**
@@ -27,7 +32,7 @@ public class IndexPage implements Serializable{
 	/**
 	 * The attribute contains the path to the file with predefined log in parameters for the administrator user.
 	 */
-    private final String CONFIG = "/resources/config/config.txt";
+    private final String CONFIG = "/resources/config/user.json";
 	
     /**
      * Constant attribute for the HTTP session map. 
@@ -123,10 +128,11 @@ public class IndexPage implements Serializable{
 	private boolean checkUserRequest(){	
 		ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
 		
-		try(BufferedReader br = new BufferedReader(new InputStreamReader(ec.getResourceAsStream(CONFIG)))){
-			String conf = br.readLine();
-			String params[] = conf.split(" ");		
-			if (params[0].equals(userName) && params[1].equals(password)){
+		try(InputStream is = ec.getResourceAsStream(CONFIG); JsonReader reader = Json.createReader(is)){
+			JsonObject conf = reader.readObject();
+			String login = conf.getString(RpiCommunicationConsts.USER_LOGIN);	
+			String pswd = conf.getString(RpiCommunicationConsts.USER_PASSWORD);
+			if (login.equals(userName) && pswd.equals(password)){
 				Logger.getLogger(IndexPage.class.getName()).log(Level.INFO, "Login and password are correct");
 				return true;			
 			}
