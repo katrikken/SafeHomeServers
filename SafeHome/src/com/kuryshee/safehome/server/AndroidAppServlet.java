@@ -18,6 +18,7 @@ import com.kuryshee.safehome.requestdataretriever.PostDataRetriever;
 
 /**
  * Servlet implementation class AndroidAppServlet
+ * @author Ekaterina Kurysheva
  */
 @WebServlet(loadOnStartup = 1, urlPatterns = {"/SafeHomeServer/app/*"})
 @MultipartConfig

@@ -153,4 +153,11 @@ public interface DatabaseAccessInterface {
 	 */
 	public boolean validateUserToken(String login, String token) throws SQLException;
 	
+	/**
+	 * Validates that such Raspberry Pi is registered.
+	 * @param rpiId
+	 * @return true, if such id exists in the database and device is active.
+	 */
+	public boolean verifyRpiRegistration(String rpiId) throws SQLException;
+	
 }

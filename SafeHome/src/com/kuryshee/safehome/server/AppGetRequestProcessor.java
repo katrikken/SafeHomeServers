@@ -8,7 +8,6 @@ import java.util.logging.Level;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.ServletOutputStream;
-import oracle.jdbc.pool.OracleDataSource;
 
 import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
@@ -18,7 +17,11 @@ import javax.sql.DataSource;
 
 import java.util.logging.Logger;
 
-
+/**
+ * Class implements processing of predefined GET requests from Android application.
+ * @author Ekaterina Kurysheva
+ *
+ */
 public class AppGetRequestProcessor implements RequestProcessor{
 	
 	private DatabaseAccessInterface database;
@@ -26,6 +29,10 @@ public class AppGetRequestProcessor implements RequestProcessor{
 	private String user;
 	private String rpiId;
 	
+	/**
+	 * Public constructor.
+	 * @param context of the server environment.
+	 */
 	public AppGetRequestProcessor(InitialContext context) {
 		try {
 			Context envContext  = (Context) context.lookup("java:/comp/env");
@@ -50,6 +57,11 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		return false;
 	}
 	
+	/**
+	 * Finds Raspberry Pi associated with user and gets data from database.
+	 * @param output
+	 * @param time of events before which the data are requested with {@link DatabaseAccessImpl#getRpiActionsBefore}.
+	 */
 	private void getRpiActions(ServletOutputStream output, String time) {
 		try {
 			rpiId = database.getRpiByUser(user);
@@ -72,6 +84,10 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Finds Raspberry Pi associated with user and gets data from database with {@link DatabaseAccessImpl#getLatestDateOnActions}.
+	 * @param output
+	 */
 	private void getLatestActionTime(ServletOutputStream output) {
 		try {
 			rpiId = database.getRpiByUser(user);
@@ -94,6 +110,10 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Finds Raspberry Pi associated with user and gets data from database with {@link DatabaseAccessImpl#getLatestDateOnPhotos}.
+	 * @param output
+	 */
 	private void getLatestPhotoTime(ServletOutputStream output) {
 		try {
 			rpiId = database.getRpiByUser(user);
@@ -116,6 +136,11 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Finds Raspberry Pi associated with user and gets data from database.
+	 * @param output
+	 * @param time of events before which the data are requested with {@link DatabaseAccessImpl#getPhotoTimesBefore}.
+	 */
 	private void getPhotoIdentifiers(ServletOutputStream output, String time) {
 		try {
 			rpiId = database.getRpiByUser(user);
@@ -138,6 +163,11 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Finds Raspberry Pi associated with user and gets data from database  with {@link DatabaseAccessImpl#getPhoto}.
+	 * @param output
+	 * @param time as identifier of the photo.
+	 */
 	private void getPhoto(ServletOutputStream output, String time) {
 		try {
 			rpiId = database.getRpiByUser(user);
@@ -160,10 +190,22 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Not supported in this version.
+	 * @param output
+	 */
 	private void getRpiState(ServletOutputStream output) {
-		//TODO
+		try {
+			output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+		}
+		catch(IOException ex) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		}
 	}
 	
+	/**
+	 * Closes the database connection.
+	 */
 	private void closeConnection() {
 		try {
 			database.closeConnection();
@@ -173,6 +215,9 @@ public class AppGetRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Processes incoming requests.
+	 */
 	@Override
 	public void process(ServletOutputStream output, String... parameters) {
 		try {

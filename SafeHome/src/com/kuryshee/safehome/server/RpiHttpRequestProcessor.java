@@ -35,6 +35,9 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Closes database connection.
+	 */
 	public void closeConnection() {
 		try {
 			database.closeConnection();
@@ -44,9 +47,49 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Processes request {@link RpiCommunicationConsts#DELETE_USER}.
+	 * @param output
+	 * @param rpiId
+	 * @param login of user to delete.
+	 */
+	public void deleteUser(ServletOutputStream output, String rpiId, String login) {
+		try {
+			if ( checkRpi(rpiId)) { //Rpi is identified
+				database.deleteUserCredentials(login);
+				
+				output.println(AnswerConstants.OK_ANSWER);
+			}
+			else {
+				output.println(AnswerConstants.ERROR_ANSWER);
+			}
+		}
+		catch(Exception e) {
+			Logger.getLogger(RpiHttpRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			
+			try {
+				output.println(AnswerConstants.ERROR_ANSWER);
+			}
+			catch(IOException ex) {
+				Logger.getLogger(RpiHttpRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+			}
+		}
+	}
+	
+	/**
+	 * Verifies that such id is registered.
+	 * @param rpiId
+	 * @return true if registered.
+	 */
 	private boolean checkRpi(String rpiId) {
-		//TODO
-		return true;
+		try {
+			return database.verifyRpiRegistration(rpiId);
+		}
+		catch(Exception e) {
+			Logger.getLogger(RpiHttpRequestProcessor.class.getName()).log(Level.SEVERE, e.getMessage(), e);	
+		}
+
+		return false;
 	}
 	
 	/**
@@ -59,7 +102,6 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 	public void registerUser(ServletOutputStream output, String rpiId, String login, String password) {
 		try {
 			if ( checkRpi(rpiId)) { //Rpi is identified
-				Logger.getLogger(RpiHttpRequestProcessor.class.getName()).log(Level.INFO, rpiId);
 				database.addUserCredentials(login, password);
 				database.addRpiUserRelation(rpiId, login);
 				
@@ -81,6 +123,14 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Registers event from Raspberry Pi
+	 * @param output
+	 * @param rpiId
+	 * @param info
+	 * @param time
+	 * @param level
+	 */
 	public void registerAction(ServletOutputStream output, String rpiId, String info, String time, String level) {
 		try {
 			if ( checkRpi(rpiId)) { //Rpi is identified
@@ -104,6 +154,14 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Saves photo in the database.
+	 * @param output
+	 * @param rpiId
+	 * @param time
+	 * @param name
+	 * @param photo
+	 */
 	public void savePhoto(ServletOutputStream output, String rpiId, String time, String name, byte[] photo) {
 		try {
 			if ( checkRpi(rpiId)) { //Rpi is identified
@@ -127,6 +185,9 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 		}
 	}
 	
+	/**
+	 * Processes GET requests from Raspberry Pi.
+	 */
 	@Override
 	public void process(ServletOutputStream output, String... parameters) {
 		try {
@@ -136,7 +197,8 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 					
 					String action = params.get(RpiCommunicationConsts.ACTION);
 					switch(action) {
-						case RpiCommunicationConsts.GET_TASK: //TODO
+						case RpiCommunicationConsts.GET_TASK: //Not supported in this version.
+							output.println(AnswerConstants.ERROR_ANSWER);
 							break;
 						default: output.println(AnswerConstants.ERROR_ANSWER);
 							break;

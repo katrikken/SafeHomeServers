@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletOutputStream;
 import javax.sql.DataSource;
 
@@ -15,11 +14,20 @@ import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.database.DatabaseAccessInterface;
 import com.kuryshee.safehome.httprequestsender.AnswerConstants;
 
+/**
+ * Class implements handling predefined POST requests from Android App.
+ * @author Ekaterina Kurysheva.
+ *
+ */
 public class AppPostRequestProcessor{
 	
 	private DatabaseAccessInterface database;
 	private String user;
 	
+	/**
+	 * Public constructor.
+	 * @param context is the environment context.
+	 */
 	public AppPostRequestProcessor(InitialContext context){
 		try {
 			Context envContext  = (Context) context.lookup("java:/comp/env");
@@ -151,21 +159,33 @@ public class AppPostRequestProcessor{
 	}
 	
 	/**
+	 * Not supported in this version.
 	 * Communicates with Raspberry Pi to change state.
 	 * @param output
 	 * @param token
 	 * @param state
 	 */
 	public void changeState(ServletOutputStream output, String token, String state) {
-		//TODO
+		try {
+			output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+		}
+		catch(IOException ex) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		}
 	}
 	
 	/**
+	 * Not supported in this version.
 	 * Communicate to Raspberry Pi to take picture.
 	 * @param output
 	 * @param token
 	 */
 	public void takePicture(ServletOutputStream output, String token) {
-		//TODO
+		try {
+			output.println(AppCommunicationConsts.REQUEST_PROCESS_ERROR);
+		}
+		catch(IOException ex) {
+			Logger.getLogger(AppGetRequestProcessor.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+		}
 	}
 }

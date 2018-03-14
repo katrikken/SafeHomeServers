@@ -36,6 +36,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		conn.setAutoCommit(false);
 	}
 	
+	/**
+	 * @see DatabaseAccessInterface#addUserCredentials(String login, String password)
+	 */
 	@Override
 	public void addUserCredentials(String login, String password) throws SQLException {
 		CallableStatement callStmt = null;
@@ -56,7 +59,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         }
 	}
 
-
+	/**
+	 * @see DatabaseAccessInterface#addUserToken(String login, String token)
+	 */
 	@Override
 	public void addUserToken(String login, String token) throws SQLException {
 		CallableStatement callStmt = null;
@@ -77,7 +82,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         }
 	}
 
-
+	/**
+	 * @see DatabaseAccessInterface#deleteUserCredentials(String login)
+	 */
 	@Override
 	public void deleteUserCredentials(String login) throws SQLException {
 		CallableStatement callStmt = null;
@@ -97,6 +104,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         }
 	}
 	
+	/**
+	 * @see DatabaseAccessInterface#getUserByToken(String token)
+	 */
 	@Override
 	public String getUserByToken(String token) throws SQLException {
 		CallableStatement callStmt = null;
@@ -125,7 +135,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		return "";
 	}
 
-
+	/**
+	 * @see DatabaseAccessInterface#validateUserCredentials(String login, String password)
+	 */
 	@Override
 	public boolean validateUserCredentials(String login, String password) throws SQLException {
 		
@@ -154,7 +166,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		else return false;
 	}
 
-
+	/**
+	 * @see DatabaseAccessInterface#validateUserToken(String login, String token)
+	 */
 	@Override
 	public boolean validateUserToken(String login, String token) throws SQLException {
 		CallableStatement callStmt = null;
@@ -184,6 +198,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		return false;
 	}
 	
+	/**
+	 * @see DatabaseAccessInterface#getRpiByUser(String user)
+	 */
 	@Override
 	public String getRpiByUser(String user) throws SQLException{
 		CallableStatement callStmt = null;
@@ -208,6 +225,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		return rpiId;
 	}
 	
+	/**
+	 * @see DatabaseAccessInterface#getLatestDateOnActions(String rpiId)
+	 */
 	@Override
 	public String getLatestDateOnActions(String rpiId) throws SQLException, IOException {
 		CallableStatement callStmt = null;
@@ -237,6 +257,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		else return "";
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#addRpiAction(String rpiId, String time, String action, String level)
+	 */
 	@Override
 	public void addRpiAction(String rpiId, String time, String action, String level) throws SQLException {
 		CallableStatement callStmt = null;
@@ -260,6 +283,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         }
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#addRpiPhoto(String rpiId, String time, String name, byte[] photo)
+	 */
 	@Override
 	public void addRpiPhoto(String rpiId, String time, String name, byte[] photo) throws SQLException, IOException {
 		CallableStatement callStmt = null;
@@ -284,6 +310,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#addRpiUserRelation(String rpiId, String user)
+	 */
 	@Override
 	public void addRpiUserRelation(String rpiId, String user) throws SQLException {
 		CallableStatement callStmt = null;
@@ -305,6 +334,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         }
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#deleteRpiPhoto(String rpiId, String time)
+	 */
 	@Override
 	public void deleteRpiPhoto(String rpiId, String time) throws SQLException {
 		CallableStatement callStmt = null;
@@ -326,6 +358,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         }
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#getLatestDateOnPhotos(String rpiId)
+	 */
 	@Override
 	public String getLatestDateOnPhotos(String rpiId) throws SQLException {
 		CallableStatement callStmt = null;
@@ -350,6 +385,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		return time;
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#getPhoto(String rpiId, String time)
+	 */
 	@Override
 	public byte[] getPhoto(String rpiId, String time) throws SQLException, IOException {
 		CallableStatement callStmt = null;
@@ -376,6 +414,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		return result;
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#getPhotoTimesBefore(String rpiId, String time, int numberOfDates)
+	 */
 	@Override
 	public byte[] getPhotoTimesBefore(String rpiId, String time, int numberOfDates) throws SQLException, IOException {
 		CallableStatement callStmt = null;
@@ -403,6 +444,9 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		return result;
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#getRpiActionsBefore(String rpiId, String time, int numberOfActions)
+	 */
 	@Override
 	public byte[] getRpiActionsBefore(String rpiId, String time, int numberOfActions) throws SQLException, IOException {
 		CallableStatement callStmt = null;
@@ -430,8 +474,40 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		return result;
 	}
 
+	/**
+	 * @see DatabaseAccessInterface#closeConnection()
+	 */
 	@Override
 	public void closeConnection() throws SQLException {
 		conn.close();
+	}
+
+	/**
+	 * @see DatabaseAccessInterface#verifyRpiRegistration(String rpiId)
+	 */
+	@Override
+	public boolean verifyRpiRegistration(String rpiId) throws SQLException {
+		CallableStatement callStmt = null;
+		int rpi = -1;
+		try {
+			callStmt = conn.prepareCall("{? = call VERIFY_RPI_REGISTERED(?)}");
+			callStmt.registerOutParameter(1, java.sql.Types.INTEGER);
+	        callStmt.setString(2, rpiId);
+	        callStmt.execute();
+	        
+	        rpi = callStmt.getInt(1);
+        } 
+        finally {
+        	try {
+	        	callStmt.close();
+        	}
+        	catch(Exception e) {
+        		Logger.getLogger(DatabaseAccessImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        	}
+        }
+		
+		if (rpi == 1) return true;
+		
+		else return false;
 	}
 }

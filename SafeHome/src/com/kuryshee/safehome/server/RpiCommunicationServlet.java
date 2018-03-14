@@ -19,6 +19,7 @@ import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
  * Servlet implementation class.
+ * @author Ekaterina Kurysheva.
  */
 @WebServlet(loadOnStartup = 1, urlPatterns = {"/SafeHomeServer/rpi/*"})
 @MultipartConfig
@@ -55,12 +56,12 @@ public class RpiCommunicationServlet extends HttpServlet{
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Logger.getLogger(RpiCommunicationServlet.class.getName()).log(Level.INFO, "--Rpi POST request registered");
-		
 		String rpiId = request.getHeader(RpiCommunicationConsts.RPI_ID);
 		
 		PostDataRetriever db = new PostDataRetriever();
 		String action = db.getTextPart(request, RpiCommunicationConsts.ACTION);
+		
+		Logger.getLogger(RpiCommunicationServlet.class.getName()).log(Level.INFO, "--Rpi: " + rpiId + ", action: " + action);
 		
 		RpiHttpRequestProcessor processor = null;
 		try {
@@ -71,7 +72,8 @@ public class RpiCommunicationServlet extends HttpServlet{
 						db.getTextPart(request, RpiCommunicationConsts.USER_LOGIN), 
 						db.getTextPart(request, RpiCommunicationConsts.USER_PASSWORD));
 					break;
-				case RpiCommunicationConsts.DELETE_USER: //TODO
+				case RpiCommunicationConsts.DELETE_USER: processor.deleteUser(response.getOutputStream(), rpiId, 
+						db.getTextPart(request, RpiCommunicationConsts.USER_LOGIN));
 					break;
 				case RpiCommunicationConsts.REGISTER_ACTION: processor.registerAction(response.getOutputStream(), rpiId, 
 						db.getTextPart(request, RpiCommunicationConsts.RPI_ACTION_INFO), 
@@ -83,7 +85,8 @@ public class RpiCommunicationServlet extends HttpServlet{
 						db.getTextPart(request, RpiCommunicationConsts.PHOTO_NAME),
 						db.getFilePart(request, RpiCommunicationConsts.PHOTO));
 					break;
-				case RpiCommunicationConsts.POST_STATE: //TODO
+				case RpiCommunicationConsts.POST_STATE: //Not supported in this version.
+					response.getWriter().print(AnswerConstants.OK_ANSWER);
 					break;
 				default: response.getWriter().println(AnswerConstants.ERROR_ANSWER);
 					break;
