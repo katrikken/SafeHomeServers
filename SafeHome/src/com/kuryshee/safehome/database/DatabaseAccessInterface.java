@@ -18,7 +18,7 @@ public interface DatabaseAccessInterface {
 	/**
 	 * Registers the action on Raspberry Pi into database.
 	 * @param rpiId
-	 * @param time
+	 * @param time 
 	 * @param action
 	 * @param level
 	 * @throws SQLException

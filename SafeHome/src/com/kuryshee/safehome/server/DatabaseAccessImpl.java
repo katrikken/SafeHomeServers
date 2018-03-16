@@ -6,7 +6,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -250,8 +249,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         }
 		
 		if (time != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat(AppCommunicationConsts.DATE_FORMAT_APP);
-			return sdf.format(time);
+			return time.getTime() + "";
 		}
 		
 		else return "";
@@ -264,12 +262,12 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	public void addRpiAction(String rpiId, String time, String action, String level) throws SQLException {
 		CallableStatement callStmt = null;
 		try {
-			callStmt = conn.prepareCall("{call ADD_RPI_ACTION(?, to_timestamp(?, ?), ?, ?)}");
+			Timestamp timestamp = new Timestamp(Long.parseLong(time));
+			callStmt = conn.prepareCall("{call ADD_RPI_ACTION(?, ?, ?, ?)}");
 	        callStmt.setString(1, rpiId);
-	        callStmt.setString(2, time);
-	        callStmt.setString(3, AppCommunicationConsts.DATE_FORMAT_DB);
-	        callStmt.setString(4, action);
-	        callStmt.setString(5, level);
+	        callStmt.setTimestamp(2, timestamp);
+	        callStmt.setString(3, action);
+	        callStmt.setString(4, level);
 	        callStmt.execute();
 	        conn.commit();
         } 
@@ -290,12 +288,12 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	public void addRpiPhoto(String rpiId, String time, String name, byte[] photo) throws SQLException, IOException {
 		CallableStatement callStmt = null;
 		try(ByteArrayInputStream is = new ByteArrayInputStream(photo)) {
-			callStmt = conn.prepareCall("{call ADD_RPI_PHOTO(?, to_timestamp(?, ?), ?, ?)}");
+			Timestamp timestamp = new Timestamp(Long.parseLong(time));
+			callStmt = conn.prepareCall("{call ADD_RPI_PHOTO(?, ?, ?, ?)}");
 			callStmt.setString(1, rpiId); 
-			callStmt.setString(2, time);
-			callStmt.setString(3, AppCommunicationConsts.DATE_FORMAT_DB); 
-			callStmt.setString(4, name);
-			callStmt.setBinaryStream(5, is, is.available());  
+			callStmt.setTimestamp(2, timestamp);
+			callStmt.setString(3, name);
+			callStmt.setBinaryStream(4, is, is.available());  
 			callStmt.execute();
 	        conn.commit();  
         } 
@@ -341,9 +339,10 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	public void deleteRpiPhoto(String rpiId, String time) throws SQLException {
 		CallableStatement callStmt = null;
 		try {
+			Timestamp timestamp = new Timestamp(Long.parseLong(time));
 			callStmt = conn.prepareCall("{call DELETE_RPI_PHOTO(?, ?)}");
 	        callStmt.setString(1, rpiId);
-	        callStmt.setString(2, time);
+	        callStmt.setTimestamp(2, timestamp);
 	        
 	        callStmt.execute();
 	        conn.commit();
@@ -364,14 +363,14 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 	@Override
 	public String getLatestDateOnPhotos(String rpiId) throws SQLException {
 		CallableStatement callStmt = null;
-		String time = null;
+		Timestamp time = null;
 		try {
 			callStmt = conn.prepareCall("{? = call GET_LATEST_DATE_ON_PHOTOS(?)}");
 			callStmt.registerOutParameter(1, java.sql.Types.VARCHAR);
 	        callStmt.setString(2, rpiId);
 	        callStmt.execute();
 	        
-	        time = callStmt.getString(1);
+	        time = callStmt.getTimestamp(1);
         } 
         finally {
         	try {
@@ -382,7 +381,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
         	}
         }
 		
-		return time;
+		return time.getTime() + "";
 	}
 
 	/**
@@ -393,11 +392,11 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		CallableStatement callStmt = null;
 		byte[] result = null;
 		try {
-			callStmt = conn.prepareCall("{? = call GET_PHOTO(?, to_timestamp(?, ?))}");
+			Timestamp timestamp = new Timestamp(Long.parseLong(time));
+			callStmt = conn.prepareCall("{? = call GET_PHOTO(?, ?)}");
 			callStmt.registerOutParameter(1, java.sql.Types.BLOB);
 			callStmt.setString(2, rpiId); 
-			callStmt.setString(3, time);
-			callStmt.setString(4, AppCommunicationConsts.DATE_FORMAT_DB);
+			callStmt.setTimestamp(3, timestamp);
 			callStmt.execute();
 			
 			result = IOUtils.toByteArray(callStmt.getBlob(1).getBinaryStream());
@@ -422,12 +421,12 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		CallableStatement callStmt = null;
 		byte[] result = null;
 		try {
-			callStmt = conn.prepareCall("{? = call GET_PHOTO_TIMES_BEFORE(?, to_timestamp(?, ?), ?)}");
+			Timestamp timestamp = new Timestamp(Long.parseLong(time));
+			callStmt = conn.prepareCall("{? = call GET_PHOTO_TIMES_BEFORE(?, ?, ?)}");
 			callStmt.registerOutParameter(1, java.sql.Types.CLOB);
 			callStmt.setString(2, rpiId); 
-			callStmt.setString(3, time);
-			callStmt.setString(4, AppCommunicationConsts.DATE_FORMAT_DB);
-			callStmt.setInt(5, numberOfDates); 
+			callStmt.setTimestamp(3, timestamp);
+			callStmt.setInt(4, numberOfDates); 
 			callStmt.execute();
 			
 			result = IOUtils.toByteArray(callStmt.getClob(1).getCharacterStream(), AppCommunicationConsts.UTF_CHARSET);
@@ -452,12 +451,12 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		CallableStatement callStmt = null;
 		byte[] result = null;
 		try {
-			callStmt = conn.prepareCall("{? = call GET_RPI_ACTIONS_BEFORE(?, to_timestamp(?, ?), ?)}");
+			Timestamp timestamp = new Timestamp(Long.parseLong(time));
+			callStmt = conn.prepareCall("{? = call GET_RPI_ACTIONS_BEFORE(?, ?, ?)}");
 			callStmt.registerOutParameter(1, java.sql.Types.CLOB);
 			callStmt.setString(2, rpiId); 
-			callStmt.setString(3, time);
-			callStmt.setString(4, AppCommunicationConsts.DATE_FORMAT_DB);
-			callStmt.setInt(5, numberOfActions); 
+			callStmt.setTimestamp(3, timestamp);
+			callStmt.setInt(4, numberOfActions); 
 			callStmt.execute();
 			
 			result = IOUtils.toByteArray(callStmt.getClob(1).getCharacterStream(), AppCommunicationConsts.UTF_CHARSET);
