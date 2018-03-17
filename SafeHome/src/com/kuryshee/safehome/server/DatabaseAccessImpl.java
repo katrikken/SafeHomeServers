@@ -366,7 +366,7 @@ public class DatabaseAccessImpl implements DatabaseAccessInterface{
 		Timestamp time = null;
 		try {
 			callStmt = conn.prepareCall("{? = call GET_LATEST_DATE_ON_PHOTOS(?)}");
-			callStmt.registerOutParameter(1, java.sql.Types.VARCHAR);
+			callStmt.registerOutParameter(1, java.sql.Types.TIMESTAMP);
 	        callStmt.setString(2, rpiId);
 	        callStmt.execute();
 	        
