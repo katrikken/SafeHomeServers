@@ -2,6 +2,7 @@ package com.kuryshee.safehome.rpiserver;
 
 /**
  * This class implements user bean for users with registered chip tokens.
+ * 
  * @author Ekaterina Kurysheva
  */
 public class UserBean {
@@ -12,10 +13,18 @@ public class UserBean {
 	
 	private String password;
 	
+	/**
+	 * Getter for the property containing user password.
+	 * @return user password.
+	 */
 	public String getPassword() {
 		return password;
 	}
 
+	/**
+	 * Setter for the property containing user password.
+	 * @param password
+	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}

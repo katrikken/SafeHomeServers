@@ -63,6 +63,9 @@ public class AppPostRequestProcessor{
 		return login + System.currentTimeMillis();
 	}
 	
+	/**
+	 * Closes the connection to the database.
+	 */
 	public void closeConnection() {
 		try {
 			database.closeConnection();
@@ -104,7 +107,7 @@ public class AppPostRequestProcessor{
 	
 	/**
 	 * Validates that the token is valid. 
-	 * Writes {@link AppCommunicationConsts.TRUE} or {@link AppCommunicationConsts.FALSE} in the output.
+	 * Writes {@link AppCommunicationConsts#TRUE} or {@link AppCommunicationConsts#FALSE} in the output.
 	 * @param output is the HTTP response output stream
 	 * @param token
 	 */

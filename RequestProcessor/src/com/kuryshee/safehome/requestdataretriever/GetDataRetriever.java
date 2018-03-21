@@ -9,6 +9,7 @@ import javax.json.JsonReader;
 
 /**
  * Implements extraction of data from HTTP GET response input stream.
+ * 
  * @author Ekaterina Kurysheva
  *
  */
@@ -18,8 +19,8 @@ public class GetDataRetriever {
 	
 	/**
 	 * Extracts short data in string format.
-	 * @param input
-	 * @return string.
+	 * @param input is an array of bytes.
+	 * @return string is converted input.
 	 */
 	public String getStringData(byte[] input) {
 		return new String(input).trim();
@@ -27,7 +28,7 @@ public class GetDataRetriever {
 	
 	/**
 	 * Extracts JSON array from input stream.
-	 * @param input
+	 * @param input as byte array.
 	 * @return {@link JsonArray}
 	 */
 	public JsonArray getJsonArray(byte[] input) {

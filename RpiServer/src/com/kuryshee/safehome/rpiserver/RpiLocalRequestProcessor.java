@@ -11,7 +11,8 @@ import com.kuryshee.safehome.requestprocessorinterface.RequestProcessor;
 import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
- * This class implements {@link RequestProcessor} interface according to this servlet REST API.
+ * This class implements {@link RequestProcessor} interface according to this servlet's REST API.
+ * 
  * @author Ekaterina Kurysheva
  */
 public class RpiLocalRequestProcessor implements RequestProcessor{
@@ -19,7 +20,7 @@ public class RpiLocalRequestProcessor implements RequestProcessor{
 	private static Logger log = Logger.getLogger(RpiLocalRequestProcessor.class.getName());
 
 	/**
-	 * This method is a part of the interface implementation.
+	 * Method is a part of the interface implementation.
 	 * It chooses actions for incoming requests.
 	 */
 	@Override
@@ -43,7 +44,7 @@ public class RpiLocalRequestProcessor implements RequestProcessor{
 	}
 	
 	/**
-	 * This method checks queue of {@link RpiServlet#tasks} if there is any for Raspberry Pi.
+	 * Method checks queue of {@link RpiServlet#tasks} if there is any for Raspberry Pi.
 	 * @return task string
 	 */
 	private String checktask(){

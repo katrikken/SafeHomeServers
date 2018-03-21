@@ -2,7 +2,7 @@
 package com.kuryshee.safehome.httprequestsender;
 
 /**
- * This class contains constants for simple answers to the requests.
+ * This class contains constants for common answers to the requests.
  * @author Ekaterina Kurysheva
  */
 public final class AnswerConstants {

@@ -18,14 +18,19 @@ import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
  * Processes HTTP requests from Raspberry Pi.
+ * 
  * @author Ekaterina Kurysheva.
- *
+
  */
 public class RpiHttpRequestProcessor implements RequestProcessor{
 	
 	private String rpiId;
 	private DatabaseAccessInterface database;
 	
+	/**
+	 * Constructor.
+	 * @param context is the environment context.
+	 */
 	public RpiHttpRequestProcessor(InitialContext context) {
 		try {
 			Context envContext  = (Context) context.lookup("java:/comp/env");
@@ -36,7 +41,7 @@ public class RpiHttpRequestProcessor implements RequestProcessor{
 	}
 	
 	/**
-	 * Closes database connection.
+	 * Closes the database connection.
 	 */
 	public void closeConnection() {
 		try {

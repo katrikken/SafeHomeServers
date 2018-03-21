@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -14,12 +16,14 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
+import com.kuryshee.safehome.appcommunicationconsts.AppCommunicationConsts;
 import com.kuryshee.safehome.httprequestsender.AnswerConstants;
 import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 import com.kuryshee.safehome.sanitizer.Sanitizer;
 
 /**
- * This class implements managed bean for the "newuser" page.
+ * This class implements managed bean for the page where new user is set.
+ * 
  * @author Ekaterina Kurysheva
  */
 @ManagedBean(name="newUserPage")
@@ -32,6 +36,13 @@ public class NewUserPage implements Serializable{
 	
 	private String password;
 	
+	private Pattern loginPattern = Pattern.compile(AppCommunicationConsts.LOGIN_PATTERN);
+    private Pattern passwordPattern = Pattern.compile(AppCommunicationConsts.PASSWORD_PATTERN);
+	
+    /**
+     * Getter for the property containing new user's password.
+     * @return user's password.
+     */
 	public String getPassword() {
 		if(password == null) {
 			return "";
@@ -39,6 +50,10 @@ public class NewUserPage implements Serializable{
 		return password;
 	}
 
+	/**
+	 * Setter for the property containing new user's password.
+	 * @param password
+	 */
 	public void setPassword(String password) {
 		this.password = Sanitizer.sanitize(password);
 	}
@@ -125,7 +140,7 @@ public class NewUserPage implements Serializable{
 	/**
 	 * This method checks whether the Servlet got the token information from a logic part.
 	 * In case the token was read and the new user name was provided, it writes information about new user to the configuration file.
-	 * @return userpage in case of successful creation of a new user. Otherwise redirects to the current page.
+	 * @return page with list of users in case of successful creation of a new user. Otherwise redirects to the current page.
 	 */
 	public String createNewUser(){
 		try{
@@ -142,7 +157,7 @@ public class NewUserPage implements Serializable{
 			Logger.getLogger(NewUserPage.class.getName()).log(Level.SEVERE, ex.getMessage());
 		}
 		
-		if(!getToken().isEmpty() && !getName().isEmpty() && !getPassword().isEmpty()){
+		if(!getToken().isEmpty() && !getName().isEmpty() && !getPassword().isEmpty() && validateInput(name, password)){
 			Logger.getLogger(NewUserPage.class.getName()).log(Level.INFO, "User can be stored.");
 			
 			try{
@@ -175,7 +190,7 @@ public class NewUserPage implements Serializable{
 		else{
 			FacesContext.getCurrentInstance().addMessage(
 					errorMsgComponent.getClientId(), 
-					new FacesMessage("Error! Check validity of the name and ensure the token has been read."));
+					new FacesMessage("Error! Check that the name is unique, the fields contain allowed characters and ensure the token has been read."));
 			if(!RpiServlet.tasks.contains(RpiCommunicationConsts.COMMAND_READTOKEN)){
 				RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_READTOKEN);
 			}
@@ -184,10 +199,29 @@ public class NewUserPage implements Serializable{
 		return PageNames.NEWUSER;
 	}
 	
+	/**
+	 * Saves changes to the shared confiuration file.
+	 * @param reader is an instance of {@link UserConfigManager}
+	 * @param beans is a list of {@link UserBean}.
+	 */
 	private void saveChanges(UserConfigManager reader, List<UserBean> beans){
 		reader.writeBeansToJson(beans);
 		if(!RpiServlet.tasks.contains(RpiCommunicationConsts.COMMAND_UPDATEUSERS)){
 			RpiServlet.tasks.add(RpiCommunicationConsts.COMMAND_UPDATEUSERS);
 		}
 	}
+	
+	 /**
+     * Validates the input login and password against simple patterns.
+     * @param login is allowed to be alphanumerical, first char must be a letter.
+     * @param password is allowed to contain alphanumerical symbols and .,?!@#$%&*()-= characters.
+     * @return true if credentials are in allowed format.
+     */
+    private boolean validateInput(String login, String password){
+
+        Matcher loginMatcher = loginPattern.matcher(login);
+        Matcher passwordMatcher = passwordPattern.matcher(password);
+
+        return loginMatcher.matches() && passwordMatcher.matches();
+    }
 }

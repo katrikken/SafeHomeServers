@@ -2,6 +2,7 @@ package com.kuryshee.safehome.sanitizer;
 
 /**
  * This class performs user HTML input sanitizing.
+ * 
  * @author Ekaterina Kurysheva
  */
 public final class Sanitizer {

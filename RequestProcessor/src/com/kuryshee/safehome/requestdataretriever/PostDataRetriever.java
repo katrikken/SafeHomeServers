@@ -16,6 +16,7 @@ import javax.servlet.http.Part;
 
 /**
  * This class implements retrieval of data from POST multi-part requests. 
+ * 
  * @author Ekaterina Kurysheva
  */
 public class PostDataRetriever {

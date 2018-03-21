@@ -20,6 +20,7 @@ import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
  * This class implements managed bean for the page with user management logic.
+ * 
  * @author Ekaterina Kurysheva
  */
 @ManagedBean(name="userPage")
@@ -36,10 +37,18 @@ public class UserPage implements Serializable {
 	
 	private UserBean changePswdBean = null;
 	
+	/**
+	 * Getter for the property, where a {@link UserBean} of user, whose password is to be changed, stored.
+	 * @return {@link UserBean} of the user.
+	 */
 	public UserBean getChangePswdBean() {
 		return changePswdBean;
 	}
 
+	/**
+	 * Setter for the property, where a {@link UserBean} of user, whose password is to be changed, stored.
+	 * @param changePswdBean
+	 */
 	public void setChangePswdBean(UserBean changePswdBean) {
 		this.changePswdBean = changePswdBean;
 	}

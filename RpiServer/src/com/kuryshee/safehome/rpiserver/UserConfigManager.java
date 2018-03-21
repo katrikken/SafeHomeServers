@@ -22,14 +22,18 @@ import javax.json.JsonWriter;
 import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 
 /**
- * Reader and writer for configuration file in JSON format.
+ * Reader and writer for the user configuration file in JSON format.
+ * 
  * @author Ekaterina Kurysheva
- *
  */
 public class UserConfigManager {
 	
 	private File config;
 	
+	/**
+	 * Constructor
+	 * @param config is {@link File} to get configured data from.
+	 */
 	public UserConfigManager(File config) {
 		this.config = config;
 	}
@@ -68,7 +72,7 @@ public class UserConfigManager {
 	
 	/**
 	 * Writes list of {@link UserBean} to configuration file.
-	 * @param list
+	 * @param list of users to write.
 	 */
 	public void writeBeansToJson(List<UserBean> list) {
 		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();

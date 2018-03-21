@@ -13,6 +13,7 @@ import javax.servlet.http.*;
 /**
  * Servlet Filter implementation class AuthFilter
  * Filters users upon their authenticity.
+ * 
  * @author Ekaterina Kurysheva
  */
 @WebFilter("/AuthFilter")

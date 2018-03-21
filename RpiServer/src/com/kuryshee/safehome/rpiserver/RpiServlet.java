@@ -27,6 +27,7 @@ import com.kuryshee.safehome.rpicommunicationconsts.RpiCommunicationConsts;
 /**
  * Servlet implementation class RpiServlet.
  * This servlet is placed locally on the Raspberry Pi and is accessed from the local network.
+ * 
  * @author Ekaterina Kurysheva
  */
 @WebServlet(loadOnStartup = 1, urlPatterns = {"/RpiServlet/*"})
@@ -42,7 +43,7 @@ public class RpiServlet extends HttpServlet {
 	
 	/**
 	 * The queue for the tasks to the Raspberry Pi logic part application.
-	 * The queue is being polled when {@link #REQ_CHECKTASK} arrives.
+	 * The queue is being polled when {@link RpiCommunicationConsts#GET_TASK} arrives.
 	 */
 	public static ConcurrentLinkedQueue<String> tasks = new ConcurrentLinkedQueue<>();
 	
@@ -95,6 +96,10 @@ public class RpiServlet extends HttpServlet {
 		}		 
 	}
 	
+	/**
+	 * Reads configuration file {@link RpiServlet#CONFIG} and saves its values.
+	 * @return directory, where shared user configuration is.
+	 */
 	public static String readConfig(){	
 		ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
 		

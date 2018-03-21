@@ -9,12 +9,19 @@ import javax.servlet.ServletOutputStream;
 
 /**
  * This interface provides abstraction over Safe Home application GET request processing.
+ * 
  * @author Ekaterina Kurysheva
  */
 public interface RequestProcessor {
 	
-	static Logger log = Logger.getLogger("Request Processor");
+	/**
+	 * Logger property.
+	 */
+	static Logger log = Logger.getLogger(RequestProcessor.class.getName());
 	
+	/**
+	 * Constant for UTF-8 charset.
+	 */
 	static final String DEFAULT_ENCODING = "UTF-8";
 	
 	/**

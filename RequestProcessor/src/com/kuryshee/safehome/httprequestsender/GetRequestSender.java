@@ -37,6 +37,10 @@ public class GetRequestSender {
     	this.token = token;
     }
     
+    /**
+     * Sets the Raspbery Pi id to the headers.
+     * @param id
+     */
     public void setRpiId(String id) {
     	this.rpiId = id;
     }
