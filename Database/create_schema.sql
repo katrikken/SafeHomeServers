@@ -572,3 +572,5 @@ select PHOTO_DATE into retval
       RETURN '';
 END;
 /
+
+COMMIT;

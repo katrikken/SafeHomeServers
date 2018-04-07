@@ -1,6 +1,9 @@
 package com.kuryshee.safehome.rpiserver;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,11 +36,10 @@ public class AuthFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		if (((HttpServletRequest) request).getSession()
 				.getAttribute(IndexPage.AUTH_KEY) == null) {
-			
 		    ((HttpServletResponse) response).sendRedirect("../index.xhtml");
 		} 
 		else {
-		      chain.doFilter(request, response);
+		     chain.doFilter(request, response);
 		}
 	}
 

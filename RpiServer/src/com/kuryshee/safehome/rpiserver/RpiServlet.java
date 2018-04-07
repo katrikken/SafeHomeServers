@@ -1,5 +1,7 @@
 package com.kuryshee.safehome.rpiserver;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,6 +13,7 @@ import javax.faces.context.FacesContext;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -37,9 +40,19 @@ public class RpiServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * The attribute contains the path to the file with predefined log in parameters for the administrator user.
+	 * The attribute contains the path to the shared configuration file.
 	 */
-    public static final String CONFIG = "/resources/config/config.json";
+    private static final String CONFIG_R = "/WEB-INF/config/config.json";
+    
+    /**
+     * The real path to the configuration file
+     */
+    public static String CONFIG = null;
+    
+    public void init(ServletConfig servletConfig) throws ServletException{
+        super.init(servletConfig);
+        CONFIG = servletConfig.getServletContext().getRealPath(CONFIG_R);
+    }
 	
 	/**
 	 * The queue for the tasks to the Raspberry Pi logic part application.
@@ -101,16 +114,19 @@ public class RpiServlet extends HttpServlet {
 	 * @return directory, where shared user configuration is.
 	 */
 	public static String readConfig(){	
-		ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+		if(CONFIG != null) {
 		
-		try(InputStream is = ec.getResourceAsStream(RpiServlet.CONFIG); JsonReader reader = Json.createReader(is)){
-			JsonObject conf = reader.readObject();
-			String path = conf.getString("keys");	
-			return path;
-		
-		} catch (IOException e) {
-			Logger.getLogger(IndexPage.class.getName()).log(Level.SEVERE, e.getMessage());
+			try(InputStream is = new FileInputStream(new File(CONFIG)); 
+					JsonReader reader = Json.createReader(is)){
+				JsonObject conf = reader.readObject();
+				String path = conf.getString("keys");	
+				return path;
+			
+			} catch (IOException e) {
+				log.log(Level.SEVERE, e.getMessage(), e);
+			}
 		}
+		log.log(Level.WARNING, "Configuration file not found");
 		return "";
 	}
 }

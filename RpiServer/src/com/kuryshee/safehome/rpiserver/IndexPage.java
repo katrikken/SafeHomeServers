@@ -31,7 +31,7 @@ public class IndexPage implements Serializable{
 	/**
 	 * The attribute contains the path to the file with predefined log in parameters for the administrator user.
 	 */
-    private final String CONFIG = "/resources/config/user.json";
+    private final String CONFIG = "/WEB-INF/config/user.json";
 	
     /**
      * Constant attribute for the HTTP session map. 
@@ -110,7 +110,7 @@ public class IndexPage implements Serializable{
 			FacesContext.getCurrentInstance().getExternalContext()
 				.getSessionMap().put(AUTH_KEY, userName);
 			
-			return "restricted/userpage";
+			return "restricted/userpage?faces-redirect=true";
 		}
 		else{
 			FacesContext.getCurrentInstance().addMessage(
