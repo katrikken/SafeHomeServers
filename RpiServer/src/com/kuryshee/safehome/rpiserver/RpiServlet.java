@@ -40,7 +40,7 @@ public class RpiServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * The attribute contains the path to the shared configuration file.
+	 * The path to the shared configuration file.
 	 */
     private static final String CONFIG_R = "/WEB-INF/config/config.json";
     
